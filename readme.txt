@@ -1,17 +1,11 @@
 # Git Updater - GitLab
 
-![downloads](https://img.shields.io/github/downloads/afragen/git-updater-gitlab/total) ![downloads@latest](https://img.shields.io/github/downloads/afragen/git-updater-gitlab/latest/total)
-
-![WordPress Tests](https://github.com/afragen/git-updater-gitlab/workflows/WordPress%20Tests/badge.svg)
-
-### GitLab API for GitHub Updater plugin
-
-* Contributors: [Andy Fragen](https://github.com/afragen), [contributors](https://github.com/afragen/git-updater-gitlab/graphs/contributors)
+* Contributors: afragen
 * Tags: gitlab, api, git updater, github updater
 * Requires at least: 5.2
 * Requires PHP: 5.6
-* Tested up to: trunk
-* Stable tag: [main](https://github.com/afragen/git-updater-gitlab/releases/latest)
+* Tested up to: 5.7
+* Stable tag: main
 * Donate link: <https://thefragens.com/github-updater-donate>
 * License: MIT
 
