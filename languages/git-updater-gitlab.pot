@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-03-07T06:14:34+00:00\n"
+"POT-Creation-Date: 2021-03-07T19:15:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: git-updater-gitlab\n"
@@ -28,4 +28,40 @@ msgstr ""
 
 #. Author of the plugin
 msgid "Andy Fragen"
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:437
+msgid "GitLab Personal Access Token"
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:446
+msgid "GitLab Private Settings"
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:455
+msgid "GitLab.com Access Token"
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:490
+msgid "GitLab"
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:499
+msgid "Enter your repository specific GitLab Access Token."
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:506
+msgid "Enter your GitLab.com Access Token."
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:517
+msgid "GitLab Access Token"
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:533
+msgid "Enter GitLab Access Token for private GitLab repositories."
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:576
+msgid "You must set a GitLab Access Token."
 msgstr ""

@@ -13,7 +13,7 @@
  * Plugin Name:       GitHub Updater - GitLab
  * Plugin URI:        https://github.com/afragen/git-updater-gitlab
  * Description:       Add GitLab hosted repositories to the GitHub Updater plugin.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Author:            Andy Fragen
  * License:           MIT
  * Network:           true

@@ -3,9 +3,9 @@
  * Git Updater - GitLab
  *
  * @author    Andy Fragen
- * @license   GPL-2.0+
- * @link      https://github.com/afragen/github-updater
- * @package   github-updater
+ * @license   MIT
+ * @link      https://github.com/afragen/git-updater-gitlab
+ * @package   git-updater-gitlab
  */
 
 namespace Fragen\GitHub_Updater\API;
@@ -434,7 +434,7 @@ class GitLab_API extends API implements API_Interface {
 		if ( $auth_required['gitlab'] || $auth_required['gitlab_enterprise'] ) {
 			add_settings_section(
 				'gitlab_settings',
-				esc_html__( 'GitLab Personal Access Token', 'github-updater' ),
+				esc_html__( 'GitLab Personal Access Token', 'git-updater-gitlab' ),
 				[ $this, 'print_section_gitlab_token' ],
 				'github_updater_gitlab_install_settings'
 			);
@@ -443,7 +443,7 @@ class GitLab_API extends API implements API_Interface {
 		if ( $auth_required['gitlab_private'] || $auth_required['gitlab_enterprise'] ) {
 			add_settings_section(
 				'gitlab_id',
-				esc_html__( 'GitLab Private Settings', 'github-updater' ),
+				esc_html__( 'GitLab Private Settings', 'git-updater-gitlab' ),
 				[ $this, 'print_section_gitlab_info' ],
 				'github_updater_gitlab_install_settings'
 			);
@@ -452,7 +452,7 @@ class GitLab_API extends API implements API_Interface {
 		if ( $auth_required['gitlab'] ) {
 			add_settings_field(
 				'gitlab_access_token',
-				esc_html__( 'GitLab.com Access Token', 'github-updater' ),
+				esc_html__( 'GitLab.com Access Token', 'git-updater-gitlab' ),
 				[ Singleton::get_instance( 'Settings', $this ), 'token_callback_text' ],
 				'github_updater_gitlab_install_settings',
 				'gitlab_settings',
@@ -487,7 +487,7 @@ class GitLab_API extends API implements API_Interface {
 		add_filter(
 			'github_updater_add_settings_subtabs',
 			function ( $subtabs ) {
-				return array_merge( $subtabs, [ 'gitlab' => esc_html__( 'GitLab', 'github-updater' ) ] );
+				return array_merge( $subtabs, [ 'gitlab' => esc_html__( 'GitLab', 'git-updater-gitlab' ) ] );
 			}
 		);
 	}
@@ -496,14 +496,14 @@ class GitLab_API extends API implements API_Interface {
 	 * Print the GitLab Settings text.
 	 */
 	public function print_section_gitlab_info() {
-		esc_html_e( 'Enter your repository specific GitLab Access Token.', 'github-updater' );
+		esc_html_e( 'Enter your repository specific GitLab Access Token.', 'git-updater-gitlab' );
 	}
 
 	/**
 	 * Print the GitLab Access Token Settings text.
 	 */
 	public function print_section_gitlab_token() {
-		esc_html_e( 'Enter your GitLab.com Access Token.', 'github-updater' );
+		esc_html_e( 'Enter your GitLab.com Access Token.', 'git-updater-gitlab' );
 	}
 
 	/**
@@ -514,7 +514,7 @@ class GitLab_API extends API implements API_Interface {
 	public function add_install_settings_fields( $type ) {
 		add_settings_field(
 			'gitlab_access_token',
-			esc_html__( 'GitLab Access Token', 'github-updater' ),
+			esc_html__( 'GitLab Access Token', 'git-updater-gitlab' ),
 			[ $this, 'gitlab_access_token' ],
 			'github_updater_install_' . $type,
 			$type
@@ -530,7 +530,7 @@ class GitLab_API extends API implements API_Interface {
 			<input class="gitlab_setting" type="password" style="width:50%;" id="gitlab_access_token" name="gitlab_access_token" value="" autocomplete="new-password">
 			<br>
 			<span class="description">
-				<?php esc_html_e( 'Enter GitLab Access Token for private GitLab repositories.', 'github-updater' ); ?>
+				<?php esc_html_e( 'Enter GitLab Access Token for private GitLab repositories.', 'git-updater-gitlab' ); ?>
 			</span>
 		</label>
 		<?php
@@ -573,7 +573,7 @@ class GitLab_API extends API implements API_Interface {
 			?>
 			<div data-dismissible="gitlab-error-1" class="error notice is-dismissible">
 				<p>
-					<?php esc_html_e( 'You must set a GitLab Access Token.', 'github-updater' ); ?>
+					<?php esc_html_e( 'You must set a GitLab Access Token.', 'git-updater-gitlab' ); ?>
 				</p>
 			</div>
 			<?php
