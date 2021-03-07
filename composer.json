@@ -1,0 +1,33 @@
+{
+  "name": "afragen/git-updater-gitlab",
+  "description": "Add GitLab hosted repositories to GitHub Updater.",
+  "type": "wordpress-plugin",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Andy Fragen",
+      "email": "andy@thefragens.com",
+      "homepage": "https://thefragens.com",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/afragen/git-updater-gitlab/issues",
+    "source": "https://github.com/afragen/git-updater-gitlab"
+  },
+  "prefer-stable": true,
+  "require": {
+    "php": ">=5.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Fragen\\GitHub_Updater\\GitLab\\": "src/",
+      "Fragen\\GitHub_Updater\\API\\": "src/GitLab/"
+    }
+  },
+  "scripts": {
+    "post-update-cmd": [
+      "wp i18n make-pot . languages/git-updater-gitlab.pot"
+    ]
+  }
+}
