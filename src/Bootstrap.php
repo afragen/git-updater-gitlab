@@ -8,7 +8,7 @@
  * @package   git-updater-gitlab
  */
 
-namespace Fragen\GitHub_Updater\GitLab;
+namespace Fragen\Git_Updater\GitLab;
 
 use Fragen\GitHub_Updater\API\GitLab_API;
 

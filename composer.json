@@ -21,7 +21,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Fragen\\GitHub_Updater\\GitLab\\": "src/",
+      "Fragen\\Git_Updater\\GitLab\\": "src/",
       "Fragen\\GitHub_Updater\\API\\": "src/GitLab/"
     }
   },
