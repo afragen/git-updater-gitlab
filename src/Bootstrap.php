@@ -105,15 +105,14 @@ class Bootstrap {
 
 		\add_filter(
 			'gu_api_repo_type_data',
-			function ( $false, $git ) {
-				if ( 'gitlab' === $git ) {
-					return [
-						'api'      => 'https://gitlab.com/api/v4',
-						'download' => 'https://gitlab.com',
-					];
+			function ( $arr, $repo ) {
+				if ( 'gitlab' === $repo->git ) {
+					$arr['git']           = 'gitlab';
+					$arr['base_uri']      = 'https://gitlab.com/api/v4';
+					$arr['base_download'] = 'https://gitlab.com';
 				}
 
-				return $false;
+				return $arr;
 			},
 			10,
 			2
