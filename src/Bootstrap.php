@@ -119,6 +119,23 @@ class Bootstrap {
 		);
 
 		\add_filter(
+			'gu_api_url_type',
+			function ( $type, $repo, $download_link, $endpoint ) {
+				if ( 'gitlab' === $type['git'] ) {
+					$type['endpoint'] = true;
+					if ( $repo->enterprise ) {
+						$type['base_download'] = $repo->enterprise;
+						$type['base_uri']      = null;
+					}
+				}
+
+				return $type;
+			},
+			10,
+			4
+		);
+
+		\add_filter(
 			'gu_git_servers',
 			function ( $git_servers ) {
 				return array_merge( $git_servers, [ 'gitlab' => 'GitLab' ] );
@@ -134,6 +151,19 @@ class Bootstrap {
 			},
 			10,
 			1
+		);
+
+		\add_filter(
+			'gu_install_remote_install',
+			function ( $install, $headers ) {
+				if ( 'gitlab' === $install['github_updater_api'] ) {
+					$install = ( new GitLab_API() )->remote_install( $headers, $install );
+				}
+
+				return $install;
+			},
+			10,
+			2
 		);
 	}
 }
