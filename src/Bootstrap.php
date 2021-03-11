@@ -122,7 +122,7 @@ class Bootstrap {
 			'gu_api_url_type',
 			function ( $type, $repo, $download_link, $endpoint ) {
 				if ( 'gitlab' === $type['git'] ) {
-					$type['endpoint'] = true;
+					// $type['endpoint'] = true;
 					if ( $repo->enterprise ) {
 						$type['base_download'] = $repo->enterprise;
 						$type['base_uri']      = null;
