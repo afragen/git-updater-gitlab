@@ -52,6 +52,7 @@ class Bootstrap {
 	 */
 	public function load_hooks() {
 		add_filter( 'gu_get_repo_parts', [ $this, 'add_repo_parts' ], 10, 2 );
+		add_filter( 'gu_parse_headers_enterprise_api', [ $this, 'parse_headers' ], 10, 2 );
 		add_filter( 'gu_settings_auth_required', [ $this, 'set_auth_required' ], 10, 1 );
 		add_filter( 'gu_get_repo_api', [ $this, 'set_repo_api' ], 10, 3 );
 		add_filter( 'gu_api_repo_type_data', [ $this, 'set_repo_type_data' ], 10, 2 );
@@ -60,6 +61,7 @@ class Bootstrap {
 		add_filter( 'gu_get_auth_header', [ $this, 'set_auth_header' ], 10, 2 );
 		add_filter( 'gu_git_servers', [ $this, 'set_git_servers' ], 10, 1 );
 		add_filter( 'gu_installed_apis', [ $this, 'set_installed_apis' ], 10, 1 );
+		add_filter( 'gu_parse_release_asset', [ $this, 'parse_release_asset' ], 10, 4 );
 		add_filter( 'gu_install_remote_install', [ $this, 'set_remote_install_data' ], 10, 2 );
 		add_filter( 'gu_get_language_pack_json', [ $this, 'set_language_pack_json' ], 10, 4 );
 		add_filter( 'gu_post_process_language_pack_package', [ $this, 'process_language_pack_data' ], 10, 4 );
@@ -78,6 +80,22 @@ class Bootstrap {
 		$repos['uris']  = array_merge( $repos['uris'], [ 'GitLab' => 'https://gitlab.com/' ] );
 
 		return $repos;
+	}
+
+	/**
+	 * Modify enterprise API data.
+	 *
+	 * @param string $enterprise_api URL for API REST endpoint.
+	 * @param string $git            Name of git host.
+	 *
+	 * @return string
+	 */
+	public function parse_headers( $enterprise_api, $git ) {
+		if ( 'GitLab' === $git ) {
+			$enterprise_api .= '/api/v4';
+		}
+
+		return $enterprise_api;
 	}
 
 	/**
@@ -224,6 +242,24 @@ class Bootstrap {
 	 */
 	public function set_installed_apis( $installed_apis ) {
 		return array_merge( $installed_apis, [ 'gitlab_api' => true ] );
+	}
+
+	/**
+	 * Parse API release asset.
+	 *
+	 * @param \stdClass $response API response object.
+	 * @param string    $git      Name of git host.
+	 * @param string    $request  Schema of API request.
+	 * @param \stdClass $obj      Current class object.
+	 *
+	 * @return string
+	 */
+	public function parse_release_asset( $response, $git, $request, $obj ) {
+		if ( 'gitlab' === $git ) {
+			$response = $obj->get_api_url( $request );
+		}
+
+		return $response;
 	}
 
 	/**
