@@ -1,4 +1,6 @@
 [unreleased]
+
+#### 0.6.0 / 2021-03-13
 * remove constructor
 * add some tests
 * add filter `gu_get_repo_api`
