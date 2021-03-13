@@ -43,7 +43,7 @@ class BootstrapTest extends WP_UnitTestCase {
 
 	public function test_set_repo_type_data() {
 		$org             = new \stdClass();
-		$org->git        = 'bitbucket';
+		$org->git        = 'gitlab';
 		$org->enterprise = null;
 		$expected_org    = [
 			'git'           => 'gitlab',
