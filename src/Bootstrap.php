@@ -181,19 +181,22 @@ class Bootstrap {
 	 * @return array
 	 */
 	public function set_credentials( $credentials, $args ) {
-		if ( isset( $args['type'], $args['headers'], $args['hosts'], $args['options'], $args['slug'] ) ) {
+		if ( isset( $args['type'], $args['headers'], $args['options'], $args['slug'], $args['object'] ) ) {
 			$type    = $args['type'];
 			$headers = $args['headers'];
-			$hosts   = $args['hosts'];
 			$options = $args['options'];
 			$slug    = $args['slug'];
+			$object  = $args['object'];
 		}
-		if ( 'gitlab' === $type || $type instanceof GitLab_API ) {
+		if ( 'gitlab' === $type || $object instanceof GitLab_API ) {
 			$token = ! empty( $options['gitlab_access_token'] ) ? $options['gitlab_access_token'] : null;
 			$token = ! empty( $options[ $slug ] ) ? $options[ $slug ] : $token;
 
-			$credentials['token'] = $token;
-			$credentials['type']  = 'gitlab';
+			$credentials['type']       = 'gitlab';
+			$credentials['isset']      = true;
+			$credentials['token']      = isset( $token ) ? $token : null;
+			$credentials['enterprise'] = ! in_array( $headers['host'], [ 'gitlab.com' ], true );
+
 		}
 
 		return $credentials;
