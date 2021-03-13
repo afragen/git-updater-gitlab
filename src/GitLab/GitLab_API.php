@@ -81,7 +81,7 @@ class GitLab_API extends API implements API_Interface {
 	public function get_remote_info( $file ) {
 		$id = $this->get_gitlab_id();
 
-		return $this->get_remote_api_info( 'gitlab', $file, "/projects/{$id}/repository/files/{$file}" );
+		return $this->get_remote_api_info( 'gitlab', "/projects/{$id}/repository/files/{$file}" );
 	}
 
 	/**
@@ -92,7 +92,7 @@ class GitLab_API extends API implements API_Interface {
 	public function get_remote_tag() {
 		$id = $this->get_gitlab_id();
 
-		return $this->get_remote_api_tag( 'gitlab', "/projects/{$id}/repository/tags" );
+		return $this->get_remote_api_tag( "/projects/{$id}/repository/tags" );
 	}
 
 	/**

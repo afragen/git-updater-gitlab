@@ -32,31 +32,6 @@ add_action(
  */
 class Bootstrap {
 	/**
-	 * Holds main plugin file.
-	 *
-	 * @var $file
-	 */
-	protected $file;
-
-	/**
-	 * Holds main plugin directory.
-	 *
-	 * @var $dir
-	 */
-	protected $dir;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param  string $file Main plugin file.
-	 * @return void
-	 */
-	public function __construct( $file ) {
-		$this->file = $file;
-		$this->dir  = dirname( $file );
-	}
-
-	/**
 	 * Run the bootstrap.
 	 *
 	 * @return bool|void
@@ -77,11 +52,16 @@ class Bootstrap {
 	 */
 	public function load_hooks() {
 		add_filter( 'gu_get_repo_parts', [ $this, 'add_repo_parts' ], 10, 2 );
+		add_filter( 'gu_parse_headers_enterprise_api', [ $this, 'parse_headers' ], 10, 2 );
 		add_filter( 'gu_settings_auth_required', [ $this, 'set_auth_required' ], 10, 1 );
+		add_filter( 'gu_get_repo_api', [ $this, 'set_repo_api' ], 10, 3 );
 		add_filter( 'gu_api_repo_type_data', [ $this, 'set_repo_type_data' ], 10, 2 );
 		add_filter( 'gu_api_url_type', [ $this, 'set_api_url_data' ], 10, 4 );
+		add_filter( 'gu_post_get_credentials', [ $this, 'set_credentials' ], 10, 2 );
+		add_filter( 'gu_get_auth_header', [ $this, 'set_auth_header' ], 10, 2 );
 		add_filter( 'gu_git_servers', [ $this, 'set_git_servers' ], 10, 1 );
 		add_filter( 'gu_installed_apis', [ $this, 'set_installed_apis' ], 10, 1 );
+		add_filter( 'gu_parse_release_asset', [ $this, 'parse_release_asset' ], 10, 4 );
 		add_filter( 'gu_install_remote_install', [ $this, 'set_remote_install_data' ], 10, 2 );
 		add_filter( 'gu_get_language_pack_json', [ $this, 'set_language_pack_json' ], 10, 4 );
 		add_filter( 'gu_post_process_language_pack_package', [ $this, 'process_language_pack_data' ], 10, 4 );
@@ -103,6 +83,22 @@ class Bootstrap {
 	}
 
 	/**
+	 * Modify enterprise API data.
+	 *
+	 * @param string $enterprise_api URL for API REST endpoint.
+	 * @param string $git            Name of git host.
+	 *
+	 * @return string
+	 */
+	public function parse_headers( $enterprise_api, $git ) {
+		if ( 'GitLab' === $git ) {
+			$enterprise_api .= '/api/v4';
+		}
+
+		return $enterprise_api;
+	}
+
+	/**
 	 * Add API specific auth required data.
 	 *
 	 * @param array $auth_required Array of authentication required data.
@@ -118,6 +114,23 @@ class Bootstrap {
 				'gitlab_enterprise' => true,
 			]
 		);
+	}
+
+	/**
+	 * Return git host API object.
+	 *
+	 * @param \stdClass $repo_api Git API object.
+	 * @param string    $git      Name of git host.
+	 * @param \stdClass $repo     Repository object.
+	 *
+	 * @return \stdClass
+	 */
+	public function set_repo_api( $repo_api, $git, $repo ) {
+		if ( 'gitlab' === $git ) {
+			$repo_api = new GitLab_API( $repo );
+		}
+
+		return $repo_api;
 	}
 
 	/**
@@ -160,6 +173,59 @@ class Bootstrap {
 	}
 
 	/**
+	 * Add credentials data for API.
+	 *
+	 * @param array $credentials Array of repository credentials data.
+	 * @param array $args        Hook args.
+	 *
+	 * @return array
+	 */
+	public function set_credentials( $credentials, $args ) {
+		if ( isset( $args['type'], $args['headers'], $args['options'], $args['slug'], $args['object'] ) ) {
+			$type    = $args['type'];
+			$headers = $args['headers'];
+			$options = $args['options'];
+			$slug    = $args['slug'];
+			$object  = $args['object'];
+		}
+		if ( 'gitlab' === $type || $object instanceof GitLab_API ) {
+			$token = ! empty( $options['gitlab_access_token'] ) ? $options['gitlab_access_token'] : null;
+			$token = ! empty( $options[ $slug ] ) ? $options[ $slug ] : $token;
+
+			$credentials['type']       = 'gitlab';
+			$credentials['isset']      = true;
+			$credentials['token']      = isset( $token ) ? $token : null;
+			$credentials['enterprise'] = ! in_array( $headers['host'], [ 'gitlab.com' ], true );
+
+		}
+
+		return $credentials;
+	}
+
+	/**
+	 * Add Basic Authentication header.
+	 *
+	 * @param array $headers     HTTP GET headers.
+	 * @param array $credentials Repository credentials.
+	 *
+	 * @return array
+	 */
+	public function set_auth_header( $headers, $credentials ) {
+		if ( 'gitlab' === $credentials['type'] ) {
+			// https://gitlab.com/gitlab-org/gitlab-foss/issues/63438.
+			if ( ! $credentials['enterprise'] ) {
+				// Used in GitLab v12.2 or greater.
+				$headers['headers']['Authorization'] = 'Bearer ' . $credentials['token'];
+			} else {
+				// Used in versions prior to GitLab v12.2.
+				$headers['headers']['PRIVATE-TOKEN'] = $credentials['token'];
+			}
+		}
+
+		return $headers;
+	}
+
+	/**
 	 * Add API as git server.
 	 *
 	 * @param array $git_servers Array of git servers.
@@ -179,6 +245,24 @@ class Bootstrap {
 	 */
 	public function set_installed_apis( $installed_apis ) {
 		return array_merge( $installed_apis, [ 'gitlab_api' => true ] );
+	}
+
+	/**
+	 * Parse API release asset.
+	 *
+	 * @param \stdClass $response API response object.
+	 * @param string    $git      Name of git host.
+	 * @param string    $request  Schema of API request.
+	 * @param \stdClass $obj      Current class object.
+	 *
+	 * @return string
+	 */
+	public function parse_release_asset( $response, $git, $request, $obj ) {
+		if ( 'gitlab' === $git ) {
+			$response = $obj->get_api_url( $request );
+		}
+
+		return $response;
 	}
 
 	/**
@@ -212,7 +296,7 @@ class Bootstrap {
 			$id       = rawurlencode( $headers['owner'] . '/' . $headers['repo'] );
 			$response = $this->api( '/projects/' . $id . '/repository/files/language-pack.json' );
 			$response = isset( $response->content )
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 				? json_decode( base64_decode( $response->content ) )
 				: null;
 		}
