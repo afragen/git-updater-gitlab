@@ -3,10 +3,10 @@
 /**
  * Class BootstrapTest
  *
- * @package Git_Updater_Bitbucket
+ * @package Git_Updater_GitLab
  */
 
-use Fragen\Git_Updater\Bitbucket\Bootstrap;
+use Fragen\Git_Updater\GitLab\Bootstrap;
 
 /**
  * Sample test case.
