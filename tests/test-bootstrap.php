@@ -57,14 +57,13 @@ class BootstrapTest extends WP_UnitTestCase {
 
 	public function test_parse_headers() {
 		$test = [
-			'host' => null,
+			'host'     => null,
 			'base_uri' => 'https://api.example.com',
 		];
 
 		$expected_rest_api = 'https://api.example.com/api/v4';
-		$actual   = (new Bootstrap())->parse_headers($test, 'GitLab');
+		$actual            = (new Bootstrap())->parse_headers($test, 'GitLab');
 
 		$this->assertSame($expected_rest_api, $actual['enterprise_api']);
 	}
-
 }
