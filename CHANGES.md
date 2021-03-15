@@ -1,4 +1,6 @@
 [unreleased]
+* add filter `gu_get_git_icon_data`
+* add filter `gu_parse_enterprise_headers`
 
 #### 0.6.0 / 2021-03-13
 * remove constructor
