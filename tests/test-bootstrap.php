@@ -66,4 +66,49 @@ class BootstrapTest extends WP_UnitTestCase {
 
 		$this->assertSame($expected_rest_api, $actual['enterprise_api']);
 	}
+
+	public function test_set_credentials() {
+		$credentials = [
+			'api.wordpress' => false,
+			'isset'         => false,
+			'token'         => null,
+			'type'          => null,
+			'enterprise'    => null,
+		];
+		$args = [
+			'type'          => 'gitlab',
+			'headers'       => ['host' => 'gitlab.com'],
+			'options'       => ['gitlab_access_token' => 'xxxx'],
+			'slug'          => '',
+			'object'        => new \stdClass,
+		];
+		$args_enterprise = [
+			'type'          => 'gitlab',
+			'headers'       => ['host' => 'mygitlab.com'],
+			'options'       => ['gitlab_access_token' => 'yyyy'],
+			'slug'          => '',
+			'object'        => new \stdClass,
+		];
+
+		$credentials_expected =[
+			'api.wordpress' => false,
+			'type'          => 'gitlab',
+			'isset'         => true,
+			'token'         => 'xxxx',
+			'enterprise'    => false,
+		];
+		$credentials_expected_enterprise =[
+			'api.wordpress' => false,
+			'type'          => 'gitlab',
+			'isset'         => true,
+			'token'         => 'yyyy',
+			'enterprise'    => true,
+		];
+
+		$actual            = (new Bootstrap())->set_credentials($credentials, $args);
+		$actual_enterprise = (new Bootstrap())->set_credentials($credentials, $args_enterprise);
+
+		$this->assertEqualSetsWithIndex($credentials_expected, $actual);
+		$this->assertEqualSetsWithIndex($credentials_expected_enterprise, $actual_enterprise);
+	}
 }
