@@ -52,7 +52,7 @@ class Bootstrap {
 	 */
 	public function load_hooks() {
 		add_filter( 'gu_get_repo_parts', [ $this, 'add_repo_parts' ], 10, 2 );
-		add_filter( 'gu_parse_headers_enterprise_api', [ $this, 'parse_headers' ], 10, 2 );
+		add_filter( 'gu_parse_enterprise_headers', [ $this, 'parse_headers' ], 10, 2 );
 		add_filter( 'gu_settings_auth_required', [ $this, 'set_auth_required' ], 10, 1 );
 		add_filter( 'gu_get_repo_api', [ $this, 'set_repo_api' ], 10, 3 );
 		add_filter( 'gu_api_repo_type_data', [ $this, 'set_repo_type_data' ], 10, 2 );
@@ -65,6 +65,7 @@ class Bootstrap {
 		add_filter( 'gu_install_remote_install', [ $this, 'set_remote_install_data' ], 10, 2 );
 		add_filter( 'gu_get_language_pack_json', [ $this, 'set_language_pack_json' ], 10, 4 );
 		add_filter( 'gu_post_process_language_pack_package', [ $this, 'process_language_pack_data' ], 10, 4 );
+		add_filter( 'gu_get_git_icon_data', [ $this, 'set_git_icon_data' ], 10, 2 );
 	}
 
 	/**
@@ -83,19 +84,21 @@ class Bootstrap {
 	}
 
 	/**
-	 * Modify enterprise API data.
+	 * Modify enterprise API header data.
 	 *
-	 * @param string $enterprise_api URL for API REST endpoint.
-	 * @param string $git            Name of git host.
+	 * @param array  $header Array of repo data.
+	 * @param string $git    Name of git host.
 	 *
 	 * @return string
 	 */
-	public function parse_headers( $enterprise_api, $git ) {
-		if ( 'GitLab' === $git ) {
-			$enterprise_api .= '/api/v4';
+	public function parse_headers( $header, $git ) {
+		if ( 'GitLab' === $git && false === strpos( $header['host'], 'gitlab.com' ) ) {
+			$header['enterprise_uri']  = $header['base_uri'];
+			$header['enterprise_api']  = trim( $header['enterprise_uri'], '/' );
+			$header['enterprise_api'] .= '/api/v4';
 		}
 
-		return $enterprise_api;
+		return $header;
 	}
 
 	/**
@@ -196,7 +199,6 @@ class Bootstrap {
 			$credentials['isset']      = true;
 			$credentials['token']      = isset( $token ) ? $token : null;
 			$credentials['enterprise'] = ! in_array( $headers['host'], [ 'gitlab.com' ], true );
-
 		}
 
 		return $credentials;
@@ -321,5 +323,26 @@ class Bootstrap {
 		}
 
 		return $package;
+	}
+
+	/**
+	 * Set API icon data for display.
+	 *
+	 * @param array  $icon_data Header data for API.
+	 * @param string $type_cap  Plugin|Theme.
+	 *
+	 * @return array
+	 */
+	public function set_git_icon_data( $icon_data, $type_cap ) {
+		$icon_data['headers'] = array_merge(
+			$icon_data['headers'],
+			[ "GitLab{$type_cap}URI" => "GitLab {$type_cap} URI" ]
+		);
+		$icon_data['icons']   = array_merge(
+			$icon_data['icons'],
+			[ 'gitlab' => basename( dirname( __DIR__ ) ) . '/assets/gitlab-logo.svg' ]
+		);
+
+		return $icon_data;
 	}
 }

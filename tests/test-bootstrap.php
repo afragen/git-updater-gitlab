@@ -56,12 +56,70 @@ class BootstrapTest extends WP_UnitTestCase {
 	}
 
 	public function test_parse_headers() {
-		$git = 'GitLab';
-		$api = 'https://api.example.com';
+		$test = [
+			'host'     => null,
+			'base_uri' => 'https://api.example.com',
+		];
 
-		$expected = 'https://api.example.com/api/v4';
-		$actual   = (new Bootstrap())->parse_headers('https://api.example.com', 'GitLab');
+		$expected_rest_api = 'https://api.example.com/api/v4';
+		$actual            = (new Bootstrap())->parse_headers($test, 'GitLab');
 
-		$this->assertSame($expected, $actual);
+		$this->assertSame($expected_rest_api, $actual['enterprise_api']);
 	}
+
+	public function test_set_credentials() {
+		$credentials = [
+			'api.wordpress' => false,
+			'isset'         => false,
+			'token'         => null,
+			'type'          => null,
+			'enterprise'    => null,
+		];
+		$args = [
+			'type'          => 'gitlab',
+			'headers'       => ['host' => 'gitlab.com'],
+			'options'       => ['gitlab_access_token' => 'xxxx'],
+			'slug'          => '',
+			'object'        => new \stdClass,
+		];
+		$args_enterprise = [
+			'type'          => 'gitlab',
+			'headers'       => ['host' => 'mygitlab.com'],
+			'options'       => ['gitlab_access_token' => 'yyyy'],
+			'slug'          => '',
+			'object'        => new \stdClass,
+		];
+
+		$credentials_expected =[
+			'api.wordpress' => false,
+			'type'          => 'gitlab',
+			'isset'         => true,
+			'token'         => 'xxxx',
+			'enterprise'    => false,
+		];
+		$credentials_expected_enterprise =[
+			'api.wordpress' => false,
+			'type'          => 'gitlab',
+			'isset'         => true,
+			'token'         => 'yyyy',
+			'enterprise'    => true,
+		];
+
+		$actual            = (new Bootstrap())->set_credentials($credentials, $args);
+		$actual_enterprise = (new Bootstrap())->set_credentials($credentials, $args_enterprise);
+
+		$this->assertEqualSetsWithIndex($credentials_expected, $actual);
+		$this->assertEqualSetsWithIndex($credentials_expected_enterprise, $actual_enterprise);
+	}
+
+	public function test_get_icon_data() {
+		$icon_data           = ['headers' => [], 'icons'=>[]];
+		$expected['headers'] = ['GitLabPluginURI' => 'GitLab Plugin URI'];
+		$expected['icons']   = ['gitlab' => 'git-updater-gitlab/assets/gitlab-logo.svg' ];
+
+		$actual = (new Bootstrap())->set_git_icon_data($icon_data, 'Plugin');
+
+		$this->assertEqualSetsWithIndex($expected, $actual);
+	}
+
 }
