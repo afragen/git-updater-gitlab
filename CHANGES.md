@@ -1,5 +1,6 @@
 [unreleased]
 * add filter `gu_running_git_servers`
+* add filter `gu_decode_response`
 
 #### 0.7.0 / 2021-03-15 🎂
 * add filter `gu_get_git_icon_data`

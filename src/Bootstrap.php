@@ -59,6 +59,7 @@ class Bootstrap {
 		add_filter( 'gu_api_url_type', [ $this, 'set_api_url_data' ], 10, 4 );
 		add_filter( 'gu_post_get_credentials', [ $this, 'set_credentials' ], 10, 2 );
 		add_filter( 'gu_get_auth_header', [ $this, 'set_auth_header' ], 10, 2 );
+		add_filter( 'gu_decode_response', [ $this, 'decode_response' ], 10, 2 );
 		add_filter( 'gu_git_servers', [ $this, 'set_git_servers' ], 10, 1 );
 		add_filter( 'gu_running_git_servers', [ $this, 'set_running_enterprise_servers' ], 10, 2 );
 		add_filter( 'gu_installed_apis', [ $this, 'set_installed_apis' ], 10, 1 );
@@ -226,6 +227,23 @@ class Bootstrap {
 		}
 
 		return $headers;
+	}
+
+	/**
+	 * Decode API response.
+	 *
+	 * @param \stdClass $response API response object.
+	 * @param string    $gitName  of API, eg 'github'.
+	 *
+	 * @return \stdClass
+	 */
+	public function decode_response( $response, $git ) {
+		if ( 'gitlab' === $git ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			$response = isset( $response->content ) ? base64_decode( $response->content ) : $response;
+		}
+
+		return $response;
 	}
 
 	/**
