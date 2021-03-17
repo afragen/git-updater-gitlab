@@ -60,6 +60,7 @@ class Bootstrap {
 		add_filter( 'gu_post_get_credentials', [ $this, 'set_credentials' ], 10, 2 );
 		add_filter( 'gu_get_auth_header', [ $this, 'set_auth_header' ], 10, 2 );
 		add_filter( 'gu_git_servers', [ $this, 'set_git_servers' ], 10, 1 );
+		add_filter( 'gu_running_git_servers', [ $this, 'set_running_enterprise_servers' ], 10, 2 );
 		add_filter( 'gu_installed_apis', [ $this, 'set_installed_apis' ], 10, 1 );
 		add_filter( 'gu_parse_release_asset', [ $this, 'parse_release_asset' ], 10, 4 );
 		add_filter( 'gu_install_remote_install', [ $this, 'set_remote_install_data' ], 10, 2 );
@@ -236,6 +237,30 @@ class Bootstrap {
 	 */
 	public function set_git_servers( $git_servers ) {
 		return array_merge( $git_servers, [ 'gitlab' => 'GitLab' ] );
+	}
+
+	/**
+	 * Set running enterprise git servers.
+	 *
+	 * @param array $servers Array of repository git types.
+	 * @param array $repos   Array of repositories objects.
+	 *
+	 * @return array
+	 */
+	public function set_running_enterprise_servers( $servers, $repos ) {
+		$ent_servers = array_map(
+			function ( $e ) {
+				if ( ! empty( $e->enterprise ) ) {
+					if ( 'gitlab' === $e->git ) {
+						return 'gitlabce';
+					}
+				}
+			},
+			$repos
+		);
+		$ent_servers = array_filter( $ent_servers );
+
+		return array_merge( $servers, $ent_servers );
 	}
 
 	/**
