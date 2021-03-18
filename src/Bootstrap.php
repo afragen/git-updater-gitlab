@@ -10,7 +10,7 @@
 
 namespace Fragen\Git_Updater\GitLab;
 
-use Fragen\GitHub_Updater\API\GitLab_API;
+use Fragen\Git_Updater\API\GitLab_API;
 
 /*
  * Exit if called directly.
@@ -38,7 +38,7 @@ class Bootstrap {
 	 */
 	public function run() {
 		// Exit if GitHub Updater not running.
-		if ( ! class_exists( '\\Fragen\\GitHub_Updater\\Bootstrap' ) ) {
+		if ( ! class_exists( '\\Fragen\\Git_Updater\\Bootstrap' ) ) {
 			return false;
 		}
 
@@ -233,7 +233,7 @@ class Bootstrap {
 	 * Decode API response.
 	 *
 	 * @param \stdClass $response API response object.
-	 * @param string    $gitName  of API, eg 'github'.
+	 * @param string    $git      Name  of API, eg 'github'.
 	 *
 	 * @return \stdClass
 	 */

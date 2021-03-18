@@ -10,7 +10,7 @@ class ComposerStaticInit6f3a3f5f7bd79d3095eb0c1335ead996
         'F' => 
         array (
             'Fragen\\Git_Updater\\GitLab\\' => 26,
-            'Fragen\\GitHub_Updater\\API\\' => 26,
+            'Fragen\\Git_Updater\\API\\' => 23,
         ),
     );
 
@@ -19,7 +19,7 @@ class ComposerStaticInit6f3a3f5f7bd79d3095eb0c1335ead996
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
-        'Fragen\\GitHub_Updater\\API\\' => 
+        'Fragen\\Git_Updater\\API\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/GitLab',
         ),

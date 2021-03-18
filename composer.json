@@ -22,7 +22,7 @@
   "autoload": {
     "psr-4": {
       "Fragen\\Git_Updater\\GitLab\\": "src/",
-      "Fragen\\GitHub_Updater\\API\\": "src/GitLab/"
+      "Fragen\\Git_Updater\\API\\": "src/GitLab/"
     }
   },
   "scripts": {
