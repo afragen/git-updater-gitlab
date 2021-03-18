@@ -435,7 +435,7 @@ class GitLab_API extends API implements API_Interface {
 				'gitlab_settings',
 				esc_html__( 'GitLab Personal Access Token', 'git-updater-gitlab' ),
 				[ $this, 'print_section_gitlab_token' ],
-				'github_updater_gitlab_install_settings'
+				'git_updater_gitlab_install_settings'
 			);
 		}
 
@@ -444,7 +444,7 @@ class GitLab_API extends API implements API_Interface {
 				'gitlab_id',
 				esc_html__( 'GitLab Private Settings', 'git-updater-gitlab' ),
 				[ $this, 'print_section_gitlab_info' ],
-				'github_updater_gitlab_install_settings'
+				'git_updater_gitlab_install_settings'
 			);
 		}
 
@@ -453,7 +453,7 @@ class GitLab_API extends API implements API_Interface {
 				'gitlab_access_token',
 				esc_html__( 'GitLab.com Access Token', 'git-updater-gitlab' ),
 				[ Singleton::get_instance( 'Settings', $this ), 'token_callback_text' ],
-				'github_updater_gitlab_install_settings',
+				'git_updater_gitlab_install_settings',
 				'gitlab_settings',
 				[
 					'id'    => 'gitlab_access_token',
@@ -469,7 +469,7 @@ class GitLab_API extends API implements API_Interface {
 	 * @return mixed
 	 */
 	public function add_repo_setting_field() {
-		$setting_field['page']            = 'github_updater_gitlab_install_settings';
+		$setting_field['page']            = 'git_updater_gitlab_install_settings';
 		$setting_field['section']         = 'gitlab_id';
 		$setting_field['callback_method'] = [
 			Singleton::get_instance( 'Settings', $this ),
@@ -515,7 +515,7 @@ class GitLab_API extends API implements API_Interface {
 			'gitlab_access_token',
 			esc_html__( 'GitLab Access Token', 'git-updater-gitlab' ),
 			[ $this, 'gitlab_access_token' ],
-			'github_updater_install_' . $type,
+			'git_updater_install_' . $type,
 			$type
 		);
 	}
