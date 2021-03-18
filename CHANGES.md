@@ -1,5 +1,9 @@
 [unreleased]
 
+#### 0.8.0 / 2021-03-18
+* update namespacing
+* requires Git Updater
+
 #### 0.7.1 / 2021-03-16
 * add filter `gu_running_git_servers`
 * add filter `gu_decode_response`
