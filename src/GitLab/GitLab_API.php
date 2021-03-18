@@ -599,9 +599,9 @@ class GitLab_API extends API implements API_Interface {
 			$gitlab_com = false;
 		}
 
-		$id                       = rawurlencode( $install['github_updater_repo'] );
+		$id                       = rawurlencode( $install['git_updater_repo'] );
 		$install['download_link'] = "{$base}/api/v4/projects/{$id}/repository/archive.zip";
-		$install['download_link'] = add_query_arg( 'sha', $install['github_updater_branch'], $install['download_link'] );
+		$install['download_link'] = add_query_arg( 'sha', $install['git_updater_branch'], $install['download_link'] );
 
 		/*
 		 * Add/Save access token if present.
