@@ -449,19 +449,18 @@ class GitLab_API extends API implements API_Interface {
 			);
 		}
 
-		if ( $auth_required['gitlab'] ) {
-			add_settings_field(
-				'gitlab_access_token',
-				esc_html__( 'GitLab.com Access Token', 'git-updater-gitlab' ),
-				[ Singleton::get_instance( 'Settings', $this ), 'token_callback_text' ],
-				'git_updater_gitlab_install_settings',
-				'gitlab_settings',
-				[
-					'id'    => 'gitlab_access_token',
-					'token' => true,
-				]
-			);
-		}
+		add_settings_field(
+			'gitlab_access_token',
+			esc_html__( 'GitLab.com Access Token', 'git-updater-gitlab' ),
+			[ Singleton::get_instance( 'Settings', $this ), 'token_callback_text' ],
+			'git_updater_gitlab_install_settings',
+			'gitlab_settings',
+			[
+				'id'    => 'gitlab_access_token',
+				'token' => true,
+				'class' => $auth_required['gitlab'] ? '' : 'hidden',
+			]
+		);
 	}
 
 	/**
