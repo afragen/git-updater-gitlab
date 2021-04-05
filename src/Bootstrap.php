@@ -192,6 +192,8 @@ class Bootstrap {
 			$options = $args['options'];
 			$slug    = $args['slug'];
 			$object  = $args['object'];
+		} else {
+			return;
 		}
 		if ( 'gitlab' === $type || $object instanceof GitLab_API ) {
 			$token = ! empty( $options['gitlab_access_token'] ) ? $options['gitlab_access_token'] : null;

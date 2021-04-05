@@ -213,12 +213,13 @@ class GitLab_API extends API implements API_Interface {
 		 * to use as a download link during a branch switch.
 		 *
 		 * @since 8.8.0
+		 * @since 10.0.0
 		 *
 		 * @param string    $download_link Download URL.
 		 * @param /stdClass $this->type    Repository object.
 		 * @param string    $branch_switch Branch or tag for rollback or branch switching.
 		 */
-		return apply_filters( 'github_updater_post_construct_download_link', $download_link, $this->type, $branch_switch );
+		return apply_filters( 'gu_post_construct_download_link', $download_link, $this->type, $branch_switch );
 	}
 
 	/**
@@ -448,19 +449,18 @@ class GitLab_API extends API implements API_Interface {
 			);
 		}
 
-		if ( $auth_required['gitlab'] ) {
-			add_settings_field(
-				'gitlab_access_token',
-				esc_html__( 'GitLab.com Access Token', 'git-updater-gitlab' ),
-				[ Singleton::get_instance( 'Settings', $this ), 'token_callback_text' ],
-				'git_updater_gitlab_install_settings',
-				'gitlab_settings',
-				[
-					'id'    => 'gitlab_access_token',
-					'token' => true,
-				]
-			);
-		}
+		add_settings_field(
+			'gitlab_access_token',
+			esc_html__( 'GitLab.com Access Token', 'git-updater-gitlab' ),
+			[ Singleton::get_instance( 'Settings', $this ), 'token_callback_text' ],
+			'git_updater_gitlab_install_settings',
+			'gitlab_settings',
+			[
+				'id'    => 'gitlab_access_token',
+				'token' => true,
+				'class' => $auth_required['gitlab'] ? '' : 'hidden',
+			]
+		);
 	}
 
 	/**
@@ -484,7 +484,7 @@ class GitLab_API extends API implements API_Interface {
 	 */
 	private function add_settings_subtab() {
 		add_filter(
-			'github_updater_add_settings_subtabs',
+			'gu_add_settings_subtabs',
 			function ( $subtabs ) {
 				return array_merge( $subtabs, [ 'gitlab' => esc_html__( 'GitLab', 'git-updater-gitlab' ) ] );
 			}
