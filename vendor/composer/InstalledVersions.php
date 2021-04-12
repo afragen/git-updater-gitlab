@@ -30,7 +30,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '796c1716673cb3673c898edfad65bd283acde490',
+    'reference' => 'a568fc5ccdb267c9532f20dfc9fa6fc9381bd06c',
     'name' => 'afragen/git-updater-gitlab',
   ),
   'versions' => 
@@ -42,7 +42,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '796c1716673cb3673c898edfad65bd283acde490',
+      'reference' => 'a568fc5ccdb267c9532f20dfc9fa6fc9381bd06c',
     ),
   ),
 );
