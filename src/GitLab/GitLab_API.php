@@ -60,7 +60,7 @@ class GitLab_API extends API implements API_Interface {
 			$this->gitlab_error_notices();
 		}
 		if ( $set_credentials ) {
-			add_site_option( 'github_updater', static::$options );
+			add_site_option( 'git_updater', static::$options );
 		}
 	}
 
