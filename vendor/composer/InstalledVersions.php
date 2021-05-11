@@ -20,6 +20,8 @@ use Composer\Semver\VersionParser;
 
 
 
+
+
 class InstalledVersions
 {
 private static $installed = array (
@@ -30,7 +32,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'ad4a1485a5388074a671f18b7db901e6181c851f',
+    'reference' => '15b9a678f2acc47aa755b46e63274d6184ec6cc9',
     'name' => 'afragen/git-updater-gitlab',
   ),
   'versions' => 
@@ -42,7 +44,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'ad4a1485a5388074a671f18b7db901e6181c851f',
+      'reference' => '15b9a678f2acc47aa755b46e63274d6184ec6cc9',
     ),
   ),
 );
@@ -61,7 +63,6 @@ $packages = array();
 foreach (self::getInstalled() as $installed) {
 $packages[] = array_keys($installed['versions']);
 }
-
 
 if (1 === \count($packages)) {
 return $packages[0];
@@ -254,6 +255,7 @@ public static function reload($data)
 self::$installed = $data;
 self::$installedByVendor = array();
 }
+
 
 
 

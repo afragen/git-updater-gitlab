@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'ad4a1485a5388074a671f18b7db901e6181c851f',
+    'reference' => '15b9a678f2acc47aa755b46e63274d6184ec6cc9',
     'name' => 'afragen/git-updater-gitlab',
   ),
   'versions' => 
@@ -18,7 +18,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'ad4a1485a5388074a671f18b7db901e6181c851f',
+      'reference' => '15b9a678f2acc47aa755b46e63274d6184ec6cc9',
     ),
   ),
 );
