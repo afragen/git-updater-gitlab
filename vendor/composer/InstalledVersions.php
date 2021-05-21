@@ -27,24 +27,24 @@ class InstalledVersions
 private static $installed = array (
   'root' => 
   array (
-    'pretty_version' => 'dev-develop',
-    'version' => 'dev-develop',
+    'pretty_version' => 'dev-main',
+    'version' => 'dev-main',
     'aliases' => 
     array (
     ),
-    'reference' => 'a33e7c2e0a1f3e38a3382143c8f75b3009af4aaa',
+    'reference' => 'f091431df949339f7a8900f788e6cc7f9ac4242f',
     'name' => 'afragen/git-updater-gitlab',
   ),
   'versions' => 
   array (
     'afragen/git-updater-gitlab' => 
     array (
-      'pretty_version' => 'dev-develop',
-      'version' => 'dev-develop',
+      'pretty_version' => 'dev-main',
+      'version' => 'dev-main',
       'aliases' => 
       array (
       ),
-      'reference' => 'a33e7c2e0a1f3e38a3382143c8f75b3009af4aaa',
+      'reference' => 'f091431df949339f7a8900f788e6cc7f9ac4242f',
     ),
   ),
 );
