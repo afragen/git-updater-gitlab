@@ -1,24 +1,23 @@
-<?php return array (
-  'root' => 
-  array (
-    'pretty_version' => 'dev-main',
-    'version' => 'dev-main',
-    'aliases' => 
-    array (
+<?php return array(
+    'root' => array(
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'type' => 'wordpress-plugin',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'reference' => 'c2d499a9009dcf1e2a2a5a44e934e22ffed40efa',
+        'name' => 'afragen/git-updater-gitlab',
+        'dev' => false,
     ),
-    'reference' => 'f091431df949339f7a8900f788e6cc7f9ac4242f',
-    'name' => 'afragen/git-updater-gitlab',
-  ),
-  'versions' => 
-  array (
-    'afragen/git-updater-gitlab' => 
-    array (
-      'pretty_version' => 'dev-main',
-      'version' => 'dev-main',
-      'aliases' => 
-      array (
-      ),
-      'reference' => 'f091431df949339f7a8900f788e6cc7f9ac4242f',
+    'versions' => array(
+        'afragen/git-updater-gitlab' => array(
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'type' => 'wordpress-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'reference' => 'c2d499a9009dcf1e2a2a5a44e934e22ffed40efa',
+            'dev_requirement' => false,
+        ),
     ),
-  ),
 );
