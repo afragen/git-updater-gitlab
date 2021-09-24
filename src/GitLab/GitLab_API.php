@@ -559,7 +559,7 @@ class GitLab_API extends API implements API_Interface {
 				'git'   => 'gitlab',
 				'error' => true,
 			];
-			if ( ! \PAnD::is_admin_notice_active( 'gitlab-error-1' ) ) {
+			if ( ! \WP_Dismiss_Notice::is_admin_notice_active( 'gitlab-error-1' ) ) {
 				return;
 			}
 			?>
