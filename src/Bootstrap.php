@@ -307,7 +307,9 @@ class Bootstrap {
 	 */
 	public function parse_release_asset( $response, $git, $request, $obj ) {
 		if ( 'gitlab' === $git ) {
-			$response = $obj->get_api_url( $request );
+			if ( $response ) {
+				$response = $obj->get_api_url( $request );
+			}
 		}
 
 		return $response;

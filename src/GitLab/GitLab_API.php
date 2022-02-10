@@ -186,7 +186,10 @@ class GitLab_API extends API implements API_Interface {
 		if ( $this->use_release_asset( $branch_switch ) ) {
 			$release_asset = $this->get_release_asset();
 
-			return $release_asset;
+			// For when a release asset is not a GitLab CI Job.
+			if ( $release_asset ) {
+				return $release_asset;
+			}
 		}
 
 		// If branch is primary branch (default) and tags are used, use newest tag.
