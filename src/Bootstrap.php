@@ -342,7 +342,7 @@ class Bootstrap {
 	public function set_language_pack_json( $response, $git, $headers, $obj ) {
 		if ( 'gitlab' === $git ) {
 			$id       = rawurlencode( $headers['owner'] . '/' . $headers['repo'] );
-			$response = $this->api( '/projects/' . $id . '/repository/files/language-pack.json' );
+			$response = $obj->api( '/projects/' . $id . '/repository/files/language-pack.json' );
 			$response = isset( $response->content )
 				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 				? json_decode( base64_decode( $response->content ) )
