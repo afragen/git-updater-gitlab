@@ -1,5 +1,9 @@
 [unreleased]
 
+#### 1.2.1 / 2022/02-10
+* fix for checking language packs
+* fix for when release asset is not a GitLab CI Job
+
 #### 1.2.0 / 2021-11-15
 * use new filter to add repository types to Git Updater Additions
 

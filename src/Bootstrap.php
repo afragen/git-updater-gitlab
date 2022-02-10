@@ -307,7 +307,9 @@ class Bootstrap {
 	 */
 	public function parse_release_asset( $response, $git, $request, $obj ) {
 		if ( 'gitlab' === $git ) {
-			$response = $obj->get_api_url( $request );
+			if ( $response ) {
+				$response = $obj->get_api_url( $request );
+			}
 		}
 
 		return $response;
@@ -342,7 +344,7 @@ class Bootstrap {
 	public function set_language_pack_json( $response, $git, $headers, $obj ) {
 		if ( 'gitlab' === $git ) {
 			$id       = rawurlencode( $headers['owner'] . '/' . $headers['repo'] );
-			$response = $this->api( '/projects/' . $id . '/repository/files/language-pack.json' );
+			$response = $obj->api( '/projects/' . $id . '/repository/files/language-pack.json' );
 			$response = isset( $response->content )
 				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 				? json_decode( base64_decode( $response->content ) )
