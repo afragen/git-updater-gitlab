@@ -190,6 +190,11 @@ class GitLab_API extends API implements API_Interface {
 			if ( $release_asset ) {
 				return $release_asset;
 			}
+
+			$release_asset_endpoint = $this->get_api_url( "/projects/{$this->response['project_id']}/jobs/artifacts/{$this->type->newest_tag}/download" );
+			$release_asset_endpoint = add_query_arg( [ 'job' => $this->type->ci_job ], $release_asset_endpoint );
+
+			return $this->get_release_asset_redirect( $release_asset_endpoint, true );
 		}
 
 		// If branch is primary branch (default) and tags are used, use newest tag.
