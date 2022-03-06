@@ -1,4 +1,6 @@
 [unreleased]
+
+#### 1.2.2 / 2022-03-06
 * update for CI Job release asset redirects
 
 #### 1.2.1 / 2022-02-10
