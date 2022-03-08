@@ -310,6 +310,13 @@ class Bootstrap {
 			if ( $response ) {
 				$response = $obj->get_api_url( $request );
 			}
+			if ( $obj->type->ci_job && ! empty( $obj->response['release_asset'] ) ) {
+				$response = $obj->response['release_asset'];
+			}
+			$release_asset                       = new \stdClass();
+			$release_asset->browser_download_url = $response;
+			$release_asset->download_count       = 0;
+			$obj->set_repo_cache( 'release_asset_response', $release_asset );
 		}
 
 		return $response;

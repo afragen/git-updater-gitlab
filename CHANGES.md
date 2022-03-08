@@ -1,4 +1,5 @@
 [unreleased]
+* remove CI Job release asset redirects and use CI Job URI
 
 #### 1.2.2 / 2022-03-06
 * update for CI Job release asset redirects
