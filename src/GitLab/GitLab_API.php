@@ -183,6 +183,8 @@ class GitLab_API extends API implements API_Interface {
 		$endpoint           = add_query_arg( 'sha', $this->type->branch, $endpoint );
 
 		// Release asset.
+		// GitLab will use the release asset URL for both updating and installing.
+		// A release asset redirect URL is not needed.
 		if ( $this->use_release_asset( $branch_switch ) ) {
 			$release_asset = $this->get_release_asset();
 
