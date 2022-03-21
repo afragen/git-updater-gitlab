@@ -2,14 +2,14 @@
 # This file is distributed under the MIT.
 msgid ""
 msgstr ""
-"Project-Id-Version: Git Updater - GitLab 1.2.1\n"
+"Project-Id-Version: Git Updater - GitLab 1.2.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/git-updater-gitlab\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-02-10T21:11:24+00:00\n"
+"POT-Creation-Date: 2022-03-21T19:48:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: git-updater-gitlab\n"
@@ -30,38 +30,38 @@ msgstr ""
 msgid "Andy Fragen"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:433
+#: src/GitLab/GitLab_API.php:441
 msgid "GitLab Personal Access Token"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:442
+#: src/GitLab/GitLab_API.php:450
 msgid "GitLab Private Settings"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:450
+#: src/GitLab/GitLab_API.php:458
 msgid "GitLab.com Access Token"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:485
+#: src/GitLab/GitLab_API.php:493
 msgid "GitLab"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:494
+#: src/GitLab/GitLab_API.php:502
 msgid "Enter your repository specific GitLab Access Token."
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:501
+#: src/GitLab/GitLab_API.php:509
 msgid "Enter your GitLab.com Access Token."
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:512
+#: src/GitLab/GitLab_API.php:520
 msgid "GitLab Access Token"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:528
+#: src/GitLab/GitLab_API.php:536
 msgid "Enter GitLab Access Token for private GitLab repositories."
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:571
+#: src/GitLab/GitLab_API.php:579
 msgid "You must set a GitLab Access Token."
 msgstr ""
