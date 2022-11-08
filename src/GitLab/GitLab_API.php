@@ -555,7 +555,7 @@ class GitLab_API extends API implements API_Interface {
 		$gitlab_error  = false;
 
 		foreach ( $error_code as $error ) {
-			if ( 'gitlab' === $error['git'] ) {
+			if ( isset( $error['git'] ) && 'gitlab' === $error['git'] ) {
 				$gitlab_error = true;
 				break;
 			}
