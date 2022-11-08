@@ -1,6 +1,6 @@
 {
   "name": "afragen/git-updater-gitlab",
-  "description": "Add GitLab hosted repositories to GitHub Updater.",
+  "description": "Add GitLab hosted repositories to Git Updater.",
   "type": "wordpress-plugin",
   "license": "MIT",
   "authors": [
