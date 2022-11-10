@@ -1,8 +1,8 @@
 # Git Updater - GitLab
 
 * Contributors: afragen
-* Tags: gitlab, api, git updater, github updater
-* Requires at least: 5.2
+* Tags: gitlab, api, git updater, git updater
+* Requires at least: 5.9
 * Requires PHP: 7.2
 * Tested up to: trunk
 * Stable tag: main

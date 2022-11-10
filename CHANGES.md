@@ -1,5 +1,8 @@
 [unreleased]
+
+#### 2.0.1 / 2022-11-09
 * requires PHP 7.2+
+* add conditional check to `gitlab_error()`
 
 #### 1.2.3 / 2022-03-21
 * remove CI Job release asset redirects and use CI Job URI
