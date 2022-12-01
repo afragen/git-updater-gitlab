@@ -1,5 +1,9 @@
 [unreleased]
 
+#### 2.0.2 / 2022-11-30
+* add git logo to subtab
+* update GA
+
 #### 2.0.1 / 2022-11-09
 * requires PHP 7.2+
 * add conditional check to `gitlab_error()`
