@@ -614,13 +614,6 @@ class GitLab_API extends API implements API_Interface {
 		 */
 		if ( ! empty( $install['gitlab_access_token'] ) ) {
 			$install['options'][ $install['repo'] ] = $install['gitlab_access_token'];
-			if ( $gitlab_com ) {
-				$install['options']['gitlab_access_token'] = $install['gitlab_access_token'];
-			}
-		}
-
-		if ( ! empty( static::$options['gitlab_access_token'] ) ) {
-			unset( $install['options']['gitlab_access_token'] );
 		}
 
 		return $install;
