@@ -1,4 +1,6 @@
 [unreleased]
+
+#### 2.1.0 / / 2024-10-31 🎃
 * remove `load_plugin_textdomain()`
 * don't save primary GitLab.com token during remote install
 
