@@ -1,5 +1,6 @@
 [unreleased]
 * remove `load_plugin_textdomain()`
+* don't save primary GitLab.com token during remote install
 
 #### 2.0.3 / 2023-09-10
 * WPCS 3.0.0
