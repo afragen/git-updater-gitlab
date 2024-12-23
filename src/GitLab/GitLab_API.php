@@ -91,14 +91,14 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Read the remote CHANGES.md file.
 	 *
-	 * @param string $changes Changelog filename.
+	 * @param null $changes The changelog filename - deprecated.
 	 *
 	 * @return bool
 	 */
 	public function get_remote_changes( $changes ) {
 		$id = $this->get_gitlab_id();
 
-		return $this->get_remote_api_changes( 'gitlab', $changes, "/projects/{$id}/repository/files/{$changes}" );
+		return $this->get_remote_api_changes( 'gitlab', $changes, "/projects/{$id}/repository/files/:changelog" );
 	}
 
 	/**
@@ -109,7 +109,7 @@ class GitLab_API extends API implements API_Interface {
 	public function get_remote_readme() {
 		$id = $this->get_gitlab_id();
 
-		return $this->get_remote_api_readme( 'gitlab', "/projects/{$id}/repository/files/readme.txt" );
+		return $this->get_remote_api_readme( 'gitlab', "/projects/{$id}/repository/files/:readme" );
 	}
 
 	/**
@@ -166,6 +166,17 @@ class GitLab_API extends API implements API_Interface {
 	 */
 	public function get_release_asset() {
 		return $this->get_api_release_asset( 'gitlab', "/projects/{$this->response['project_id']}/jobs/artifacts/{$this->type->newest_tag}/download" );
+	}
+
+	/**
+	 * Return list of repository assets.
+	 *
+	 * @return array
+	 */
+	public function get_repo_assets() {
+		$id = $this->get_gitlab_id();
+
+		return $this->get_remote_api_assets( 'gitlab', "/projects/{$id}/repository/files/:assets" );
 	}
 
 	/**
@@ -245,6 +256,7 @@ class GitLab_API extends API implements API_Interface {
 			case 'download_link':
 				break;
 			case 'file':
+			case 'assets':
 			case 'changes':
 			case 'readme':
 				$endpoint = add_query_arg( 'ref', $git->type->branch, $endpoint );
@@ -424,6 +436,27 @@ class GitLab_API extends API implements API_Interface {
 		}
 
 		return [ $tags, $rollback ];
+	}
+
+	/**
+	 * Parse remote assets directory.
+	 *
+	 * @param \stdClass|array $response Response from API call.
+	 *
+	 * @return \stdClass|array
+	 */
+	protected function parse_asset_dir_response( $response ) {
+		$assets = [];
+
+		if ( isset( $response->message ) || isset( $response->error ) ) {
+			return $response;
+		}
+
+		foreach ( $response as $asset ) {
+			$assets[ $asset->name ] = $asset->download_url;
+		}
+
+		return $assets;
 	}
 
 	/**
