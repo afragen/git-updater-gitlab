@@ -98,7 +98,7 @@ class GitLab_API extends API implements API_Interface {
 	public function get_remote_changes( $changes ) {
 		$id = $this->get_gitlab_id();
 
-		return $this->get_remote_api_changes( 'gitlab', $changes, "/projects/{$id}/repository/files/:changelog" );
+		return $this->get_remote_api_changes( 'gitlab', "/projects/{$id}/repository/files/:changelog" );
 	}
 
 	/**
@@ -448,7 +448,7 @@ class GitLab_API extends API implements API_Interface {
 	protected function parse_asset_dir_response( $response ) {
 		$assets = [];
 
-		if ( isset( $response->message ) || isset( $response->error ) ) {
+		if ( isset( $response->message ) || is_wp_error( $response ) ) {
 			return $response;
 		}
 

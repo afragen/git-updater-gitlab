@@ -1,5 +1,8 @@
 [unreleased]
 
+#### 2.3.1 / 2024-12-25
+* update for no parameter in `get_remote_changes()`
+
 #### 2.3.0 / 2024-12-23
 * updates for new Git Updater feature
 
