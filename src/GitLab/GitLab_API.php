@@ -448,7 +448,7 @@ class GitLab_API extends API implements API_Interface {
 	protected function parse_asset_dir_response( $response ) {
 		$assets = [];
 
-		if ( isset( $response->message ) || isset( $response->error ) ) {
+		if ( isset( $response->message ) || is_wp_error( $response ) ) {
 			return $response;
 		}
 
