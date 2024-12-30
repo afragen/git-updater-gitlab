@@ -85,7 +85,7 @@ class GitLab_API extends API implements API_Interface {
 	public function get_remote_tag() {
 		$id = $this->get_gitlab_id();
 
-		return $this->get_remote_api_tag( "/projects/{$id}/repository/tags" );
+		return $this->get_remote_api_tag( 'gitlab', "/projects/{$id}/repository/tags" );
 	}
 
 	/**
@@ -179,6 +179,16 @@ class GitLab_API extends API implements API_Interface {
 		return $this->get_remote_api_assets( 'gitlab', "/projects/{$id}/repository/files/:assets" );
 	}
 
+	/**
+	 * Return list of files at repo root.
+	 *
+	 * @return array
+	 */
+	public function get_repo_contents() {
+		$id = $this->get_gitlab_id();
+
+		return $this->get_remote_api_contents( 'gitlab', "/projects/{$id}/repository/tree" );
+	}
 	/**
 	 * Construct $this->type->download_link using GitLab API v4.
 	 *
@@ -436,6 +446,31 @@ class GitLab_API extends API implements API_Interface {
 		}
 
 		return [ $tags, $rollback ];
+	}
+
+	/**
+	 * Parse remote root files/dirs.
+	 *
+	 * @param \stdClass|array $response Response from API call.
+	 *
+	 * @return array
+	 */
+	protected function parse_contents_response( $response ) {
+		$files = [];
+		$dirs  = [];
+		foreach ( $response as $content ) {
+			if ( 'blob' === $content->type ) {
+				$files[] = $content->name;
+			}
+			if ( 'tree' === $content->type ) {
+				$dirs[] = $content->name;
+			}
+		}
+
+		return [
+			'files' => $files,
+			'dirs'  => $dirs,
+		];
 	}
 
 	/**
