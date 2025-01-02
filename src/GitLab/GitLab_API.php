@@ -491,6 +491,11 @@ class GitLab_API extends API implements API_Interface {
 			$assets[ $asset->name ] = $asset->download_url;
 		}
 
+		if ( empty( $assets ) ) {
+			$assets['message'] = 'No assets found';
+			$assets            = (object) $assets;
+		}
+
 		return $assets;
 	}
 
