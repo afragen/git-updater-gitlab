@@ -196,6 +196,7 @@ class Bootstrap {
 			$credentials['isset']      = true;
 			$credentials['token']      = isset( $token ) ? $token : null;
 			$credentials['enterprise'] = ! in_array( $headers['host'], [ 'gitlab.com' ], true );
+			$credentials['slug']       = $slug;
 		}
 
 		return $credentials;
@@ -219,6 +220,7 @@ class Bootstrap {
 				// Used in versions prior to GitLab v12.2.
 				$headers['headers']['PRIVATE-TOKEN'] = $credentials['token'];
 			}
+			$headers['headers']['gitlab'] = $credentials['slug'];
 		}
 
 		return $headers;
