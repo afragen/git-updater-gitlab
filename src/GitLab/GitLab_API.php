@@ -138,7 +138,7 @@ class GitLab_API extends API implements API_Interface {
 			}
 		}
 
-		if ( $this->validate_response( $response ) || is_string($response)) {
+		if ( $this->validate_response( $response ) || is_string( $response ) ) {
 			return false;
 		}
 
@@ -299,9 +299,9 @@ class GitLab_API extends API implements API_Interface {
 	 * @return string|int
 	 */
 	public function get_gitlab_id() {
-		$id       = null;
-		$this->response = $this->get_repo_cache( $this->type->slug);
-		$response = isset( $this->response['project_id'] ) ? $this->response['project_id'] : false;
+		$id             = null;
+		$this->response = $this->get_repo_cache( $this->type->slug );
+		$response       = isset( $this->response['project_id'] ) ? $this->response['project_id'] : false;
 
 		if ( ! $response ) {
 			self::$method = 'projects';
@@ -371,6 +371,7 @@ class GitLab_API extends API implements API_Interface {
 				$arr['private']      = isset( $e->visibility ) && 'private' === $e->visibility ? true : false;
 				$arr['private']      = isset( $e->public ) ? ! $e->public : $arr['private'];
 				$arr['last_updated'] = $e->last_activity_at;
+				$arr['added']        = $e->created_at;
 				$arr['watchers']     = 0;
 				$arr['forks']        = $e->forks_count;
 				$arr['open_issues']  = isset( $e->open_issues_count ) ? $e->open_issues_count : 0;
