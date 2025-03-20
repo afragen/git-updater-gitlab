@@ -1,4 +1,5 @@
 [unreleased]
+* use `PRIVATE-TOKEN` authentication header as GitLab doesn't fully support oAuth 2.0
 
 #### 2.4.4 / 2025-02-27
 * add `added` meta data

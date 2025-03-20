@@ -213,14 +213,10 @@ class Bootstrap {
 	public function set_auth_header( $headers, $credentials ) {
 		if ( 'gitlab' === $credentials['type'] ) {
 			// https://gitlab.com/gitlab-org/gitlab-foss/issues/63438.
-			if ( ! $credentials['enterprise'] ) {
-				// Used in GitLab v12.2 or greater.
-				$headers['headers']['Authorization'] = 'Bearer ' . $credentials['token'];
-			} else {
-				// Used in versions prior to GitLab v12.2.
-				$headers['headers']['PRIVATE-TOKEN'] = $credentials['token'];
-			}
-			$headers['headers']['gitlab'] = $credentials['slug'];
+			// Use when GitLab fully supports oAuth 2.0.
+			// $headers['headers']['Authorization'] = 'Bearer ' . $credentials['token'];
+			$headers['headers']['PRIVATE-TOKEN'] = $credentials['token'];
+			$headers['headers']['gitlab']        = $credentials['slug'];
 		}
 
 		return $headers;
