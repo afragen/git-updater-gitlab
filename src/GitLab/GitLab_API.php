@@ -461,10 +461,10 @@ class GitLab_API extends API implements API_Interface {
 		$files = [];
 		$dirs  = [];
 		foreach ( $response as $content ) {
-			if ( 'blob' === $content->type ) {
+			if ( property_exists( $content, 'type' ) && 'blob' === $content->type ) {
 				$files[] = $content->name;
 			}
-			if ( 'tree' === $content->type ) {
+			if ( property_exists( $content, 'type' ) && 'tree' === $content->type ) {
 				$dirs[] = $content->name;
 			}
 		}
