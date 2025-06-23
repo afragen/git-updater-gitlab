@@ -11,6 +11,7 @@
 namespace Fragen\Git_Updater\GitLab;
 
 use Fragen\Git_Updater\API\GitLab_API;
+use stdClass;
 
 /*
  * Exit if called directly.
