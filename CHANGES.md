@@ -1,6 +1,7 @@
 [unreleased]
 * add error checking to `parse_contents_response()`
 * un-escape using `use`
+* update `parse_tags()`
 
 #### 2.5.0 / 2025-03-21
 * use `PRIVATE-TOKEN` authentication header as GitLab doesn't fully support oAuth 2.0
