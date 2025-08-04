@@ -11,6 +11,8 @@
 namespace Fragen\Git_Updater\API;
 
 use Fragen\Singleton;
+use stdClass;
+use WP_Dismiss_Notice;
 
 /*
  * Exit if called directly.
@@ -31,7 +33,7 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Constructor.
 	 *
-	 * @param null|\stdClass $type plugin|theme.
+	 * @param null|stdClass $type plugin|theme.
 	 */
 	public function __construct( $type = null ) {
 		parent::__construct();
@@ -329,9 +331,9 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Parse API response call and return only array of tag numbers.
 	 *
-	 * @param \stdClass|array $response Response from API call for tags.
+	 * @param stdClass|array $response Response from API call for tags.
 	 *
-	 * @return \stdClass|array Array of tag numbers, object is error.
+	 * @return stdClass|array Array of tag numbers, object is error.
 	 */
 	public function parse_tag_response( $response ) {
 		if ( $this->validate_response( $response ) ) {
@@ -354,7 +356,7 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Parse API response and return array of meta variables.
 	 *
-	 * @param \stdClass|array $response Response from API call.
+	 * @param stdClass|array $response Response from API call.
 	 *
 	 * @return array $arr Array of meta variables.
 	 */
@@ -384,9 +386,9 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Parse API response and return array with changelog in base64.
 	 *
-	 * @param \stdClass|array $response Response from API call.
+	 * @param stdClass|array $response Response from API call.
 	 *
-	 * @return array|\stdClass $arr Array of changes in base64, object if error.
+	 * @return array|stdClass $arr Array of changes in base64, object if error.
 	 */
 	public function parse_changelog_response( $response ) {
 		if ( $this->validate_response( $response ) ) {
@@ -409,7 +411,7 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Parse API response and return array of branch data.
 	 *
-	 * @param \stdClass $response API response.
+	 * @param stdClass $response API response.
 	 *
 	 * @return array Array of branch data.
 	 */
@@ -430,30 +432,33 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Parse tags and create download links.
 	 *
-	 * @param \stdClass|array $response  Response from API call.
-	 * @param array           $repo_type Array of repo data.
+	 * @param stdClass|array $response  Response from API call.
+	 * @param array          $repo_type Array of repo data.
 	 *
 	 * @return array
 	 */
 	protected function parse_tags( $response, $repo_type ) {
-		$tags     = [];
-		$rollback = [];
+		$tags = [];
 
 		foreach ( (array) $response as $tag ) {
-			$download_link    = "/projects/{$this->get_gitlab_id()}/repository/archive.zip";
-			$download_link    = $this->get_api_url( $download_link );
-			$download_link    = add_query_arg( 'sha', $tag, $download_link );
-			$tags[]           = $tag;
-			$rollback[ $tag ] = $download_link;
+			$download_link = "/projects/{$this->get_gitlab_id()}/repository/archive.zip";
+			$download_link = $this->get_api_url( $download_link );
+
+			// Ignore leading 'v' and skip anything with dash or words.
+			if ( ! preg_match( '/[^v]+[-a-z]+/', $tag ) ) {
+				$tags[ $tag ] = add_query_arg( 'sha', $tag, $download_link );
+
+			}
+			uksort( $tags, fn ( $a, $b ) => version_compare( ltrim( $b, 'v' ), ltrim( $a, 'v' ) ) );
 		}
 
-		return [ $tags, $rollback ];
+		return $tags;
 	}
 
 	/**
 	 * Parse remote root files/dirs.
 	 *
-	 * @param \stdClass|array $response Response from API call.
+	 * @param stdClass|array $response Response from API call.
 	 *
 	 * @return array
 	 */
@@ -461,10 +466,10 @@ class GitLab_API extends API implements API_Interface {
 		$files = [];
 		$dirs  = [];
 		foreach ( $response as $content ) {
-			if ( 'blob' === $content->type ) {
+			if ( property_exists( $content, 'type' ) && 'blob' === $content->type ) {
 				$files[] = $content->name;
 			}
-			if ( 'tree' === $content->type ) {
+			if ( property_exists( $content, 'type' ) && 'tree' === $content->type ) {
 				$dirs[] = $content->name;
 			}
 		}
@@ -478,9 +483,9 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Parse remote assets directory.
 	 *
-	 * @param \stdClass|array $response Response from API call.
+	 * @param stdClass|array $response Response from API call.
 	 *
-	 * @return \stdClass|array
+	 * @return stdClass|array
 	 */
 	protected function parse_asset_dir_response( $response ) {
 		$assets = [];
@@ -647,7 +652,7 @@ class GitLab_API extends API implements API_Interface {
 				'git'   => 'gitlab',
 				'error' => true,
 			];
-			if ( ! \WP_Dismiss_Notice::is_admin_notice_active( 'gitlab-error-1' ) ) {
+			if ( ! WP_Dismiss_Notice::is_admin_notice_active( 'gitlab-error-1' ) ) {
 				return;
 			}
 			?>
