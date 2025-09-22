@@ -372,11 +372,11 @@ class GitLab_API extends API implements API_Interface {
 			function ( $e ) use ( &$arr ) {
 				$arr['private']      = isset( $e->visibility ) && 'private' === $e->visibility ? true : false;
 				$arr['private']      = isset( $e->public ) ? ! $e->public : $arr['private'];
-				$arr['last_updated'] = $e->last_activity_at;
-				$arr['added']        = $e->created_at;
+				$arr['last_updated'] = $e->last_activity_at ?? '';
+				$arr['added']        = $e->created_at ?? '';
 				$arr['watchers']     = 0;
-				$arr['forks']        = $e->forks_count;
-				$arr['open_issues']  = isset( $e->open_issues_count ) ? $e->open_issues_count : 0;
+				$arr['forks']        = $e->forks_count ?? 0;
+				$arr['open_issues']  = $e->open_issues_count ?? 0;
 			}
 		);
 

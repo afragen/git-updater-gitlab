@@ -1,5 +1,8 @@
 [unreleased]
 
+#### 2.6.1 / 2025-09-22
+* harden `parse_meta_response()`
+
 #### 2.6.0 / 2025-08-04
 * add error checking to `parse_contents_response()`
 * un-escape using `use`
