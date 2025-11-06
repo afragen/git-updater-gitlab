@@ -167,7 +167,15 @@ class GitLab_API extends API implements API_Interface {
 	 * @return string|bool
 	 */
 	public function get_release_asset() {
-		return $this->get_api_release_asset( 'gitlab', "/projects/{$this->response['project_id']}/jobs/artifacts/{$this->type->newest_tag}/download" );
+		$id = $this->get_gitlab_id();
+
+		return $this->get_api_release_asset( 'gitlab', "/projects/{$id}/jobs/artifacts/{$this->type->newest_tag}/download" );
+	}
+
+	public function get_release_assets() {
+		$id = $this->get_gitlab_id();
+
+		return $this->get_api_release_assets( 'gitlab', "/projects/{$id}/releases" );
 	}
 
 	/**
@@ -210,6 +218,7 @@ class GitLab_API extends API implements API_Interface {
 		// A release asset redirect URL is not needed.
 		if ( $this->use_release_asset( $branch_switch ) ) {
 			$release_asset = $this->get_release_asset();
+			//$release_assets = $this->get_release_assets();
 
 			// For when a release asset is not a GitLab CI Job.
 			if ( $release_asset ) {
