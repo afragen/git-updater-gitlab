@@ -1,4 +1,5 @@
 [unreleased]
+* move download base outside of loop
 
 #### 2.6.1 / 2025-09-22
 * harden `parse_meta_response()`

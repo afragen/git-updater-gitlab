@@ -448,11 +448,10 @@ class GitLab_API extends API implements API_Interface {
 	 */
 	protected function parse_tags( $response, $repo_type ) {
 		$tags = [];
+		$download_link = "/projects/{$this->get_gitlab_id()}/repository/archive.zip";
+		$download_link = $this->get_api_url( $download_link );
 
 		foreach ( (array) $response as $tag ) {
-			$download_link = "/projects/{$this->get_gitlab_id()}/repository/archive.zip";
-			$download_link = $this->get_api_url( $download_link );
-
 			// Ignore leading 'v' and skip anything with dash or words.
 			if ( ! preg_match( '/[^v]+[-a-z]+/', $tag ) ) {
 				$tags[ $tag ] = add_query_arg( 'sha', $tag, $download_link );
