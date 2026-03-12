@@ -1,5 +1,7 @@
 [unreleased]
+* move sort outside of loop
 * move download base outside of loop
+* get all release assets
 
 #### 2.6.1 / 2025-09-22
 * harden `parse_meta_response()`
