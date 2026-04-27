@@ -120,23 +120,18 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool
 	 */
 	public function get_repo_meta() {
-		$response = isset( $this->response['meta'] ) ? $this->response['meta'] : false;
+		$id        = $this->get_gitlab_id();
+		$cache_key = $this->get_cache_key( $this->type->slug ?? false );
+		$cache     = get_site_option( $cache_key );
+		$response  = isset( $cache['meta'] ) ? $cache['meta'] : false;
 
 		if ( ! $response ) {
 			self::$method = 'meta';
-			$project      = isset( $this->response['project'] ) ? $this->response['project'] : false;
-
-			// exit if transient is empty.
-			if ( ! $project ) {
-				return false;
-			}
-
-			$response = ( $this->type->slug === $project->path ) ? $project : false;
+			$response     = $this->api( '/projects/' . $id );
 
 			if ( $response ) {
 				$response = $this->parse_meta_response( $response );
 				$this->set_repo_cache( 'meta', $response );
-				$this->set_repo_cache( 'project', null );
 			}
 		}
 
