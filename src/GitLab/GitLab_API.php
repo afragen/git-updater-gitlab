@@ -303,38 +303,17 @@ class GitLab_API extends API implements API_Interface {
 	}
 
 	/**
-	 * Get GitLab project ID and project meta.
+	 * Get GitLab project ID.
 	 *
 	 * @see https://docs.gitlab.com/ee/api/README.html#namespaced-path-encoding
 	 *
-	 * @return string|int
+	 * @return string
 	 */
-	public function get_gitlab_id() {
-		$id             = null;
-		$this->response = $this->get_repo_cache( $this->type->slug );
-		$response       = isset( $this->response['project_id'] ) ? $this->response['project_id'] : false;
+	public function get_gitlab_id(): string {
+		$id = implode( '/', [ $this->type->owner, $this->type->slug ] );
+		$id = rawurlencode( $id );
 
-		if ( ! $response ) {
-			self::$method = 'projects';
-			$id           = implode( '/', [ $this->type->owner, $this->type->slug ] );
-			$id           = rawurlencode( $id );
-			$response     = $this->api( '/projects/' . $id );
-
-			if ( $this->validate_response( $response ) ) {
-				return $id;
-			}
-
-			if ( $response && $this->type->slug === $response->path ) {
-				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-				// $id = $response->id;
-				$this->set_repo_cache( 'project_id', $id );
-				$this->set_repo_cache( 'project', $response );
-			}
-
-			return $id;
-		}
-
-		return $response;
+		return $id;
 	}
 
 	/**
