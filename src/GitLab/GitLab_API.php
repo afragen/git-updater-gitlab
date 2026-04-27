@@ -37,8 +37,7 @@ class GitLab_API extends API implements API_Interface {
 	 */
 	public function __construct( $type = null ) {
 		parent::__construct();
-		$this->type     = $type;
-		$this->response = [];
+		$this->type = $type;
 		$this->set_default_credentials();
 		$this->settings_hook( $this );
 		$this->add_settings_subtab();
@@ -167,6 +166,11 @@ class GitLab_API extends API implements API_Interface {
 		return $this->get_api_release_asset( 'gitlab', "/projects/{$id}/jobs/artifacts/{$this->type->newest_tag}/download" );
 	}
 
+	/**
+	 * Get GitLab release assets.
+	 *
+	 * @return array
+	 */
 	public function get_release_assets() {
 		$id = $this->get_gitlab_id();
 
@@ -213,14 +217,14 @@ class GitLab_API extends API implements API_Interface {
 		// A release asset redirect URL is not needed.
 		if ( $this->use_release_asset( $branch_switch ) ) {
 			$release_asset = $this->get_release_asset();
-			//$release_assets = $this->get_release_assets();
+			// $release_assets = $this->get_release_assets();
 
 			// For when a release asset is not a GitLab CI Job.
 			if ( $release_asset ) {
 				return $release_asset;
 			}
 
-			$ci_job_endpoint = $this->get_api_url( "/projects/{$this->response['project_id']}/jobs/artifacts/{$this->type->newest_tag}/download" );
+			$ci_job_endpoint = $this->get_api_url( "/projects/{$this->get_gitlab_id()}/jobs/artifacts/{$this->type->newest_tag}/download" );
 			$ci_job_endpoint = add_query_arg( [ 'job' => $this->type->ci_job ], $ci_job_endpoint );
 			$this->set_repo_cache( 'release_asset', $ci_job_endpoint );
 
@@ -421,7 +425,7 @@ class GitLab_API extends API implements API_Interface {
 	 * @return array
 	 */
 	protected function parse_tags( $response, $repo_type ) {
-		$tags = [];
+		$tags          = [];
 		$download_link = "/projects/{$this->get_gitlab_id()}/repository/archive.zip";
 		$download_link = $this->get_api_url( $download_link );
 
