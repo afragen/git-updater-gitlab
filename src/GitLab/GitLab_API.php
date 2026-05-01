@@ -137,9 +137,6 @@ class GitLab_API extends API implements API_Interface {
 			return false;
 		}
 
-		$this->type->repo_meta = $response;
-		$this->add_meta_repo_object();
-
 		return true;
 	}
 
