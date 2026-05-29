@@ -520,6 +520,15 @@ class GitLab_API extends API implements API_Interface {
 				'class' => $auth_required['gitlab'] ? '' : 'hidden',
 			]
 		);
+
+		add_settings_field(
+			'gitlab_oauth_connect',
+			esc_html__( 'GitLab OAuth', 'git-updater-gitlab' ),
+			[ Singleton::get_instance( 'OAuth\OAuth_Connect', $this ), 'render_connect_field' ],
+			'git_updater_gitlab_install_settings',
+			'gitlab_settings',
+			[ 'provider' => 'gitlab' ]
+		);
 	}
 
 	/**
