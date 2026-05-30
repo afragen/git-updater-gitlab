@@ -174,7 +174,7 @@ class GitLab_API extends API implements API_Interface {
 	public function get_repo_assets() {
 		$id = $this->get_gitlab_id();
 
-		return $this->get_remote_api_assets( 'gitlab', "/projects/{$id}/repository/files/:assets" );
+		return $this->get_remote_api_assets( 'gitlab', "/projects/{$id}/repository/files/:path" );
 	}
 
 	/**

@@ -3,6 +3,7 @@
 * move download base outside of loop
 * get all release assets
 * use local variables
+* fix variable in `get_repo_assets()`
 
 #### 2.6.1 / 2025-09-22
 * harden `parse_meta_response()`
