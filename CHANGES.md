@@ -1,4 +1,6 @@
 [unreleased]
+
+#### 2.7.0 / 2026-05-31 🎂
 * move sort outside of loop
 * move download base outside of loop
 * get all release assets
