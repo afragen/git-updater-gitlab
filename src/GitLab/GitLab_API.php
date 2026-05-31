@@ -12,7 +12,6 @@ namespace Fragen\Git_Updater\API;
 
 use Fragen\Singleton;
 use stdClass;
-use WP_Dismiss_Notice;
 
 /*
  * Exit if called directly.
@@ -37,8 +36,7 @@ class GitLab_API extends API implements API_Interface {
 	 */
 	public function __construct( $type = null ) {
 		parent::__construct();
-		$this->type     = $type;
-		$this->response = [];
+		$this->type = $type;
 		$this->set_default_credentials();
 		$this->settings_hook( $this );
 		$this->add_settings_subtab();
@@ -49,18 +47,12 @@ class GitLab_API extends API implements API_Interface {
 	 * Set default credentials if option not set.
 	 */
 	protected function set_default_credentials() {
-		$running_servers = Singleton::get_instance( 'Base', $this )->get_running_git_servers();
 		$set_credentials = false;
 		if ( ! isset( static::$options['gitlab_access_token'] ) ) {
 			static::$options['gitlab_access_token'] = null;
 			$set_credentials                        = true;
 		}
-		if ( in_array( 'gitlabce', $running_servers, true )
-			|| ( empty( static::$options['gitlab_access_token'] )
-			&& in_array( 'gitlab', $running_servers, true ) )
-		) {
-			$this->gitlab_error_notices();
-		}
+
 		if ( $set_credentials ) {
 			add_site_option( 'git_updater', static::$options );
 		}
@@ -82,7 +74,7 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Get remote info for tags.
 	 *
-	 * @return bool
+	 * @return bool|null
 	 */
 	public function get_remote_tag() {
 		$id = $this->get_gitlab_id();
@@ -95,7 +87,7 @@ class GitLab_API extends API implements API_Interface {
 	 *
 	 * @param null $changes The changelog filename - deprecated.
 	 *
-	 * @return bool
+	 * @return bool|null
 	 */
 	public function get_remote_changes( $changes ) {
 		$id = $this->get_gitlab_id();
@@ -106,7 +98,7 @@ class GitLab_API extends API implements API_Interface {
 	/**
 	 * Read and parse remote readme.txt.
 	 *
-	 * @return bool
+	 * @return bool|null
 	 */
 	public function get_remote_readme() {
 		$id = $this->get_gitlab_id();
@@ -120,23 +112,17 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool
 	 */
 	public function get_repo_meta() {
-		$response = isset( $this->response['meta'] ) ? $this->response['meta'] : false;
+		$id       = $this->get_gitlab_id();
+		$cache    = $this->get_repo_cache( $this->type->slug ?? false, false );
+		$response = isset( $cache['meta'] ) ? $cache['meta'] : false;
 
 		if ( ! $response ) {
 			self::$method = 'meta';
-			$project      = isset( $this->response['project'] ) ? $this->response['project'] : false;
-
-			// exit if transient is empty.
-			if ( ! $project ) {
-				return false;
-			}
-
-			$response = ( $this->type->slug === $project->path ) ? $project : false;
+			$response     = $this->api( '/projects/' . $id );
 
 			if ( $response ) {
 				$response = $this->parse_meta_response( $response );
 				$this->set_repo_cache( 'meta', $response );
-				$this->set_repo_cache( 'project', null );
 			}
 		}
 
@@ -144,16 +130,13 @@ class GitLab_API extends API implements API_Interface {
 			return false;
 		}
 
-		$this->type->repo_meta = $response;
-		$this->add_meta_repo_object();
-
 		return true;
 	}
 
 	/**
 	 * Create array of branches and download links as array.
 	 *
-	 * @return bool
+	 * @return bool|null
 	 */
 	public function get_remote_branches() {
 		$id = $this->get_gitlab_id();
@@ -167,24 +150,37 @@ class GitLab_API extends API implements API_Interface {
 	 * @return string|bool
 	 */
 	public function get_release_asset() {
-		return $this->get_api_release_asset( 'gitlab', "/projects/{$this->response['project_id']}/jobs/artifacts/{$this->type->newest_tag}/download" );
+		$id = $this->get_gitlab_id();
+
+		return $this->get_api_release_asset( 'gitlab', "/projects/{$id}/jobs/artifacts/{$this->type->newest_tag}/download" );
+	}
+
+	/**
+	 * Get GitLab release assets.
+	 *
+	 * @return array
+	 */
+	public function get_release_assets() {
+		$id = $this->get_gitlab_id();
+
+		return $this->get_api_release_assets( 'gitlab', "/projects/{$id}/releases" );
 	}
 
 	/**
 	 * Return list of repository assets.
 	 *
-	 * @return array
+	 * @return bool|null
 	 */
 	public function get_repo_assets() {
 		$id = $this->get_gitlab_id();
 
-		return $this->get_remote_api_assets( 'gitlab', "/projects/{$id}/repository/files/:assets" );
+		return $this->get_remote_api_assets( 'gitlab', "/projects/{$id}/repository/files/:path" );
 	}
 
 	/**
 	 * Return list of files at repo root.
 	 *
-	 * @return array
+	 * @return bool|null
 	 */
 	public function get_repo_contents() {
 		$id = $this->get_gitlab_id();
@@ -210,13 +206,14 @@ class GitLab_API extends API implements API_Interface {
 		// A release asset redirect URL is not needed.
 		if ( $this->use_release_asset( $branch_switch ) ) {
 			$release_asset = $this->get_release_asset();
+			// $release_assets = $this->get_release_assets();
 
 			// For when a release asset is not a GitLab CI Job.
 			if ( $release_asset ) {
 				return $release_asset;
 			}
 
-			$ci_job_endpoint = $this->get_api_url( "/projects/{$this->response['project_id']}/jobs/artifacts/{$this->type->newest_tag}/download" );
+			$ci_job_endpoint = $this->get_api_url( "/projects/{$this->get_gitlab_id()}/jobs/artifacts/{$this->type->newest_tag}/download" );
 			$ci_job_endpoint = add_query_arg( [ 'job' => $this->type->ci_job ], $ci_job_endpoint );
 			$this->set_repo_cache( 'release_asset', $ci_job_endpoint );
 
@@ -294,38 +291,17 @@ class GitLab_API extends API implements API_Interface {
 	}
 
 	/**
-	 * Get GitLab project ID and project meta.
+	 * Get GitLab project ID.
 	 *
 	 * @see https://docs.gitlab.com/ee/api/README.html#namespaced-path-encoding
 	 *
-	 * @return string|int
+	 * @return string
 	 */
-	public function get_gitlab_id() {
-		$id             = null;
-		$this->response = $this->get_repo_cache( $this->type->slug );
-		$response       = isset( $this->response['project_id'] ) ? $this->response['project_id'] : false;
+	public function get_gitlab_id(): string {
+		$id = implode( '/', [ $this->type->owner, $this->type->slug ] );
+		$id = rawurlencode( $id );
 
-		if ( ! $response ) {
-			self::$method = 'projects';
-			$id           = implode( '/', [ $this->type->owner, $this->type->slug ] );
-			$id           = rawurlencode( $id );
-			$response     = $this->api( '/projects/' . $id );
-
-			if ( $this->validate_response( $response ) ) {
-				return $id;
-			}
-
-			if ( $response && $this->type->slug === $response->path ) {
-				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-				// $id = $response->id;
-				$this->set_repo_cache( 'project_id', $id );
-				$this->set_repo_cache( 'project', $response );
-			}
-
-			return $id;
-		}
-
-		return $response;
+		return $id;
 	}
 
 	/**
@@ -438,19 +414,17 @@ class GitLab_API extends API implements API_Interface {
 	 * @return array
 	 */
 	protected function parse_tags( $response, $repo_type ) {
-		$tags = [];
+		$tags          = [];
+		$download_link = "/projects/{$this->get_gitlab_id()}/repository/archive.zip";
+		$download_link = $this->get_api_url( $download_link );
 
 		foreach ( (array) $response as $tag ) {
-			$download_link = "/projects/{$this->get_gitlab_id()}/repository/archive.zip";
-			$download_link = $this->get_api_url( $download_link );
-
 			// Ignore leading 'v' and skip anything with dash or words.
 			if ( ! preg_match( '/[^v]+[-a-z]+/', $tag ) ) {
 				$tags[ $tag ] = add_query_arg( 'sha', $tag, $download_link );
-
 			}
-			uksort( $tags, fn ( $a, $b ) => version_compare( ltrim( $b, 'v' ), ltrim( $a, 'v' ) ) );
 		}
+		uksort( $tags, fn ( $a, $b ) => version_compare( ltrim( $b, 'v' ), ltrim( $a, 'v' ) ) );
 
 		return $tags;
 	}
@@ -466,6 +440,7 @@ class GitLab_API extends API implements API_Interface {
 		$files = [];
 		$dirs  = [];
 		foreach ( $response as $content ) {
+			$content = (object) $content;
 			if ( property_exists( $content, 'type' ) && 'blob' === $content->type ) {
 				$files[] = $content->name;
 			}
@@ -619,50 +594,6 @@ class GitLab_API extends API implements API_Interface {
 			</span>
 		</label>
 		<?php
-	}
-
-	/**
-	 * Display GitLab error admin notices.
-	 */
-	public function gitlab_error_notices() {
-		add_action( is_multisite() ? 'network_admin_notices' : 'admin_notices', [ $this, 'gitlab_error' ] );
-	}
-
-	/**
-	 * Generate error message for missing GitLab Private Token.
-	 */
-	public function gitlab_error() {
-		$auth_required = $this->get_class_vars( 'Settings', 'auth_required' );
-		$error_code    = $this->get_error_codes();
-		$gitlab_error  = false;
-
-		foreach ( $error_code as $error ) {
-			if ( isset( $error['git'] ) && 'gitlab' === $error['git'] ) {
-				$gitlab_error = true;
-				break;
-			}
-		}
-
-		if ( ( ! isset( $error_code['gitlab'] ) && $gitlab_error )
-			&& ( $auth_required['gitlab_enterprise']
-			|| ( empty( static::$options['gitlab_access_token'] )
-				&& $auth_required['gitlab'] ) )
-		) {
-			self::$error_code['gitlab'] = [
-				'git'   => 'gitlab',
-				'error' => true,
-			];
-			if ( ! WP_Dismiss_Notice::is_admin_notice_active( 'gitlab-error-1' ) ) {
-				return;
-			}
-			?>
-			<div data-dismissible="gitlab-error-1" class="error notice is-dismissible">
-				<p>
-					<?php esc_html_e( 'You must set a GitLab Access Token.', 'git-updater-gitlab' ); ?>
-				</p>
-			</div>
-			<?php
-		}
 	}
 
 	/**

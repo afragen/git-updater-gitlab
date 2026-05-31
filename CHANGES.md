@@ -1,5 +1,12 @@
 [unreleased]
 
+#### 2.7.0 / 2026-05-31 🎂
+* move sort outside of loop
+* move download base outside of loop
+* get all release assets
+* use local variables
+* fix variable in `get_repo_assets()`
+
 #### 2.6.1 / 2025-09-22
 * harden `parse_meta_response()`
 
