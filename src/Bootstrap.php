@@ -215,8 +215,7 @@ class Bootstrap {
 		if ( 'gitlab' === $credentials['type'] ) {
 			// https://gitlab.com/gitlab-org/gitlab-foss/issues/63438.
 			// Use when GitLab fully supports oAuth 2.0.
-			// $headers['headers']['Authorization'] = 'Bearer ' . $credentials['token'];
-			$headers['headers']['PRIVATE-TOKEN'] = $credentials['token'];
+			$headers['headers']['Authorization'] = 'Bearer ' . $credentials['token'];
 			$headers['headers']['gitlab']        = $credentials['slug'];
 		}
 

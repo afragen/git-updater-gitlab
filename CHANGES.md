@@ -1,4 +1,5 @@
 [unreleased]
+* show/hide settings fields based on OAuth setting
 
 #### 2.7.0 / 2026-05-31 🎂
 * move sort outside of loop

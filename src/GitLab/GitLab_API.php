@@ -493,7 +493,7 @@ class GitLab_API extends API implements API_Interface {
 		if ( $auth_required['gitlab'] || $auth_required['gitlab_enterprise'] ) {
 			add_settings_section(
 				'gitlab_settings',
-				esc_html__( 'GitLab Personal Access Token', 'git-updater-gitlab' ),
+				esc_html__( 'GitLab Token', 'git-updater-gitlab' ),
 				[ $this, 'print_section_gitlab_token' ],
 				'git_updater_gitlab_install_settings'
 			);
@@ -508,17 +508,42 @@ class GitLab_API extends API implements API_Interface {
 			);
 		}
 
+		$token_args = [
+			'id'    => 'gitlab_access_token',
+			'token' => true,
+			'class' => $auth_required['gitlab'] ? '' : 'hidden',
+		];
+		$oauth_args = [
+			'provider' => 'gitlab',
+			'class'    => '',
+		];
+
+		if ( class_exists( 'Fragen\Git_Updater\OAuth\OAuth_Connect' ) ) {
+			$oauth = Singleton::get_instance( 'OAuth\OAuth_Connect', $this );
+			if ( $oauth->is_oauth_token( 'gitlab' ) ) {
+				$token_args['class'] = trim( $token_args['class'] . ' hidden' );
+			}
+			if ( ! empty( static::$options['gitlab_access_token'] ) && ! $oauth->is_oauth_token( 'gitlab' ) ) {
+				$oauth_args['class'] = trim( $oauth_args['class'] . ' hidden' );
+			}
+
+			add_settings_field(
+				'gitlab_oauth_connect',
+				esc_html__( 'GitLab OAuth', 'git-updater-gitlab' ),
+				[ $oauth, 'render_connect_field' ],
+				'git_updater_gitlab_install_settings',
+				'gitlab_settings',
+				$oauth_args
+			);
+		}
+
 		add_settings_field(
 			'gitlab_access_token',
-			esc_html__( 'GitLab.com Access Token', 'git-updater-gitlab' ),
+			esc_html__( 'GitLab Access Token', 'git-updater-gitlab' ),
 			[ Singleton::get_instance( 'Settings', $this ), 'token_callback_text' ],
 			'git_updater_gitlab_install_settings',
 			'gitlab_settings',
-			[
-				'id'    => 'gitlab_access_token',
-				'token' => true,
-				'class' => $auth_required['gitlab'] ? '' : 'hidden',
-			]
+			$token_args
 		);
 	}
 
@@ -561,7 +586,7 @@ class GitLab_API extends API implements API_Interface {
 	 * Print the GitLab Access Token Settings text.
 	 */
 	public function print_section_gitlab_token() {
-		esc_html_e( 'Enter your GitLab.com Access Token.', 'git-updater-gitlab' );
+		esc_html_e( 'Click the "Connect GitLab" button for an OAuth connection or enter your GitLab Access Token.', 'git-updater-gitlab' );
 		$icon = plugin_dir_url( dirname( __DIR__ ) ) . 'assets/gitlab-logo.svg';
 		printf( '<img class="git-oauth-icon" src="%s" alt="GitLab logo" />', esc_attr( $icon ) );
 	}
