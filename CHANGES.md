@@ -1,4 +1,6 @@
 [unreleased]
+* show/hide settings fields based on OAuth setting
+
 * move sort outside of loop
 * move download base outside of loop
 * get all release assets
