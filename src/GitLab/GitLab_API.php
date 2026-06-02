@@ -587,6 +587,7 @@ class GitLab_API extends API implements API_Interface {
 	 */
 	public function print_section_gitlab_token() {
 		esc_html_e( 'Click the "Connect GitLab" button for an OAuth connection or enter your GitLab Access Token.', 'git-updater-gitlab' );
+		printf( '<p class="description">%s</p>', esc_html__( 'Access tokens are stored in this site\'s options table. Database backups contain them in cleartext — handle backup files accordingly.', 'git-updater-gitlab' ) );
 		$icon = plugin_dir_url( dirname( __DIR__ ) ) . 'assets/gitlab-logo.svg';
 		printf( '<img class="git-oauth-icon" src="%s" alt="GitLab logo" />', esc_attr( $icon ) );
 	}
