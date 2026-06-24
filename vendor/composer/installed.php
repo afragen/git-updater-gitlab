@@ -3,7 +3,7 @@
         'name' => 'afragen/git-updater-gitlab',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '35d3f5b0c6ea918aedd8e0b694f4af2986037409',
+        'reference' => '8eaab56670bbfcf0f4ecbd79824ad217811e68fa',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'afragen/git-updater-gitlab' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '35d3f5b0c6ea918aedd8e0b694f4af2986037409',
+            'reference' => '8eaab56670bbfcf0f4ecbd79824ad217811e68fa',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
