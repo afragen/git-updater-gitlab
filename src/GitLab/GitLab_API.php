@@ -527,6 +527,14 @@ class GitLab_API extends API implements API_Interface {
 				$oauth_args['class'] = trim( $oauth_args['class'] . ' hidden' );
 			}
 
+			$remove_args = [
+				'provider' => 'gitlab',
+				'class'    => '',
+			];
+			if ( empty( static::$options['gitlab_access_token'] ) || $oauth->is_oauth_token( 'gitlab' ) ) {
+				$remove_args['class'] = trim( $remove_args['class'] . ' hidden' );
+			}
+
 			add_settings_field(
 				'gitlab_oauth_connect',
 				esc_html__( 'GitLab OAuth', 'git-updater-gitlab' ),
@@ -534,6 +542,15 @@ class GitLab_API extends API implements API_Interface {
 				'git_updater_gitlab_install_settings',
 				'gitlab_settings',
 				$oauth_args
+			);
+
+			add_settings_field(
+				'gitlab_remove_token',
+				esc_html__( 'Remove Token', 'git-updater-gitlab' ),
+				[ $oauth, 'render_remove_token_field' ],
+				'git_updater_gitlab_install_settings',
+				'gitlab_settings',
+				$remove_args
 			);
 		}
 
