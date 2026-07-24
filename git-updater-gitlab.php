@@ -23,7 +23,7 @@
  * GitHub Languages:  https://github.com/afragen/git-updater-gitlab-translations
  * Primary Branch:    main
  * Requires at least: 5.9
- * Requires PHP:      7.2
+ * Requires PHP:      8.0
  */
 
 namespace Fragen\Git_Updater\GitLab;
