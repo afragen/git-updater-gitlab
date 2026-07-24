@@ -13,7 +13,7 @@
  * Plugin Name:       Git Updater - GitLab
  * Plugin URI:        https://github.com/afragen/git-updater-gitlab
  * Description:       Add GitLab hosted repositories to the Git Updater plugin.
- * Version:           2.8.0
+ * Version:           2.9.0
  * Author:            Andy Fragen
  * License:           MIT
  * Network:           true
@@ -23,7 +23,7 @@
  * GitHub Languages:  https://github.com/afragen/git-updater-gitlab-translations
  * Primary Branch:    main
  * Requires at least: 5.9
- * Requires PHP:      7.2
+ * Requires PHP:      8.0
  */
 
 namespace Fragen\Git_Updater\GitLab;
@@ -36,8 +36,14 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-// Load Autoloader.
-require_once __DIR__ . '/vendor/autoload.php';
+// Load custom autoloader (plugin src/).
+require_once __DIR__ . '/autoloader.php';
+git_updater_register_autoloader( __DIR__, 'GitLab' );
+
+// Load Composer autoloader for vendor packages, if installed (gitignored; created by composer install).
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	require_once __DIR__ . '/vendor/autoload.php';
+}
 
 ( new Bootstrap() )->load_hooks();
 
