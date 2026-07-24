@@ -6,6 +6,10 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e
 {
+    public static $files = array (
+        '8d50dc88e56bace65e1e72f6017983ed' => __DIR__ . '/..' . '/freemius/wordpress-sdk/start.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'P' =>
         array (
@@ -13,8 +17,10 @@ class ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e
         ),
         'F' =>
         array (
+            'Fragen\\WP_Readme_Parser\\' => 24,
             'Fragen\\Git_Updater\\GitLab\\' => 26,
             'Fragen\\Git_Updater\\API\\' => 23,
+            'Fragen\\Git_Updater\\' => 19,
         ),
     );
 
@@ -22,6 +28,10 @@ class ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e
         'PHPCSStandards\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' =>
         array (
             0 => __DIR__ . '/..' . '/dealerdirect/phpcodesniffer-composer-installer/src',
+        ),
+        'Fragen\\WP_Readme_Parser\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/afragen/wp-readme-parser/src',
         ),
         'Fragen\\Git_Updater\\GitLab\\' =>
         array (
@@ -31,10 +41,25 @@ class ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e
         array (
             0 => __DIR__ . '/../..' . '/src/GitLab',
         ),
+        'Fragen\\Git_Updater\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/afragen/git-updater/src/Git_Updater',
+        ),
+    );
+
+    public static $prefixesPsr0 = array (
+        'P' =>
+        array (
+            'Parsedown' =>
+            array (
+                0 => __DIR__ . '/..' . '/erusev/parsedown',
+            ),
+        ),
     );
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Fragen\\Singleton' => __DIR__ . '/..' . '/afragen/singleton/Singleton.php',
         'PHPCSUtils\\AbstractSniffs\\AbstractArrayDeclarationSniff' => __DIR__ . '/..' . '/phpcsstandards/phpcsutils/PHPCSUtils/AbstractSniffs/AbstractArrayDeclarationSniff.php',
         'PHPCSUtils\\BackCompat\\BCFile' => __DIR__ . '/..' . '/phpcsstandards/phpcsutils/PHPCSUtils/BackCompat/BCFile.php',
         'PHPCSUtils\\BackCompat\\BCTokens' => __DIR__ . '/..' . '/phpcsstandards/phpcsutils/PHPCSUtils/BackCompat/BCTokens.php',
@@ -87,6 +112,7 @@ class ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e
         'PHPCSUtils\\Utils\\TypeString' => __DIR__ . '/..' . '/phpcsstandards/phpcsutils/PHPCSUtils/Utils/TypeString.php',
         'PHPCSUtils\\Utils\\UseStatements' => __DIR__ . '/..' . '/phpcsstandards/phpcsutils/PHPCSUtils/Utils/UseStatements.php',
         'PHPCSUtils\\Utils\\Variables' => __DIR__ . '/..' . '/phpcsstandards/phpcsutils/PHPCSUtils/Utils/Variables.php',
+        'WP_Dismiss_Notice' => __DIR__ . '/..' . '/afragen/wp-dismiss-notice/wp-dismiss-notice.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
@@ -94,6 +120,7 @@ class ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit7596a1f32bf61b35afb6e73faa97ee8e::$classMap;
 
         }, null, ClassLoader::class);
