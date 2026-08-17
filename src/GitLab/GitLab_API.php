@@ -199,7 +199,9 @@ class GitLab_API extends API implements API_Interface {
 		$download_link_base = $this->get_api_url( "/projects/{$this->get_gitlab_id()}/repository/archive.zip" );
 		$download_link_base = remove_query_arg( 'private_token', $download_link_base );
 		$endpoint           = '';
-		$endpoint           = add_query_arg( 'sha', $this->type->branch, $endpoint );
+
+		$target   = false !== $branch_switch ? $branch_switch : $this->type->branch;
+		$endpoint = add_query_arg( 'sha', $target, $endpoint );
 
 		// Release asset.
 		// GitLab will use the release asset URL for both updating and installing.
@@ -213,7 +215,8 @@ class GitLab_API extends API implements API_Interface {
 				return $release_asset;
 			}
 
-			$ci_job_endpoint = $this->get_api_url( "/projects/{$this->get_gitlab_id()}/jobs/artifacts/{$this->type->newest_tag}/download" );
+			$tag             = $this->is_tag_target( (string) $target ) ? $target : $this->type->newest_tag;
+			$ci_job_endpoint = $this->get_api_url( "/projects/{$this->get_gitlab_id()}/jobs/artifacts/{$tag}/download" );
 			$ci_job_endpoint = add_query_arg( [ 'job' => $this->type->ci_job ], $ci_job_endpoint );
 			$this->set_repo_cache( 'release_asset', $ci_job_endpoint );
 
@@ -221,13 +224,8 @@ class GitLab_API extends API implements API_Interface {
 		}
 
 		// If branch is primary branch (default) and tags are used, use newest tag.
-		if ( $this->type->primary_branch === $this->type->branch && ! empty( $this->type->tags ) ) {
+		if ( $this->type->primary_branch === $target && ! empty( $this->type->tags ) ) {
 			$endpoint = add_query_arg( 'sha', $this->type->newest_tag, $endpoint );
-		}
-
-		// Create endpoint for branch switching.
-		if ( $branch_switch ) {
-			$endpoint = add_query_arg( 'sha', $branch_switch, $endpoint );
 		}
 
 		$download_link = $download_link_base . $endpoint;
@@ -244,6 +242,17 @@ class GitLab_API extends API implements API_Interface {
 		 * @param string    $branch_switch Branch or tag for rollback or branch switching.
 		 */
 		return apply_filters( 'gu_post_construct_download_link', $download_link, $this->type, $branch_switch );
+	}
+
+	/**
+	 * Check whether a string target is a tag (not a branch).
+	 *
+	 * @param string $target Target branch or tag.
+	 *
+	 * @return bool
+	 */
+	private function is_tag_target( string $target ): bool {
+		return ! array_key_exists( $target, (array) ( $this->type->branches ?? [] ) );
 	}
 
 	/**
