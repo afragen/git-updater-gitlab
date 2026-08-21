@@ -1,4 +1,5 @@
 [unreleased]
+* read `tags` and `newest_tag` from the repo cache in `construct_download_link()` so non-fetch callers resolve the correct download endpoint even when the repo object has not been hydrated by a fetch (requires Git Updater 14.4+)
 * fix WPCS errors in the custom autoloader (missing @package tag, function docblock, short array syntax, array alignment, reserved $class param)
 
 #### 2.9.0 / 2026-07-24

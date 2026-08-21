@@ -200,6 +200,33 @@ class GitLab_API extends API implements API_Interface {
 		$download_link_base = remove_query_arg( 'private_token', $download_link_base );
 		$endpoint           = '';
 
+		/*
+		 * Read tag data from the repo cache so non-fetch callers (rollback,
+		 * branch switch, REST update, branch listings) resolve the correct
+		 * endpoint even when $this->type has not been hydrated by a fetch.
+		 */
+		$cache      = $this->get_repo_cache( $this->type->slug, false, [ 'tags', 'newest_tag' ] );
+		$tags       = $this->type->tags ?? [];
+		$newest_tag = $this->type->newest_tag ?? '0.0.0';
+		if ( is_array( $cache ) ) {
+			if ( is_array( $cache['tags'] ?? null ) && ! empty( $cache['tags'] ) ) {
+				$tags = $cache['tags'];
+			}
+			if ( ! empty( $cache['newest_tag'] ) ) {
+				$newest_tag = (string) $cache['newest_tag'];
+			} elseif ( is_array( $cache['tags'] ?? null ) && ! empty( $cache['tags'] ) ) {
+				// Missing newest_tag entry: derive newest from the cached tag list
+				// (a flat list of names; sort_tags() semantics).
+				$sorted = $cache['tags'];
+				usort( $sorted, fn ( $a, $b ) => version_compare( trim( $b, 'v' ), trim( $a, 'v' ) ) );
+				$newest_tag = (string) reset( $sorted );
+			}
+		}
+		// Hydrate stale repo object so use_release_asset()'s '0.0.0' gate sees the real value.
+		if ( '0.0.0' === ( $this->type->newest_tag ?? '0.0.0' ) && '0.0.0' !== $newest_tag ) {
+			$this->type->newest_tag = $newest_tag;
+		}
+
 		$target   = false !== $branch_switch ? $branch_switch : $this->type->branch;
 		$endpoint = add_query_arg( 'sha', $target, $endpoint );
 
@@ -215,7 +242,7 @@ class GitLab_API extends API implements API_Interface {
 				return $release_asset;
 			}
 
-			$tag             = $this->is_tag_target( (string) $target ) ? $target : $this->type->newest_tag;
+			$tag             = $this->is_tag_target( (string) $target ) ? $target : $newest_tag;
 			$ci_job_endpoint = $this->get_api_url( "/projects/{$this->get_gitlab_id()}/jobs/artifacts/{$tag}/download" );
 			$ci_job_endpoint = add_query_arg( [ 'job' => $this->type->ci_job ], $ci_job_endpoint );
 			$this->set_repo_cache( 'release_asset', $ci_job_endpoint );
@@ -224,8 +251,8 @@ class GitLab_API extends API implements API_Interface {
 		}
 
 		// If branch is primary branch (default) and tags are used, use newest tag.
-		if ( $this->type->primary_branch === $target && ! empty( $this->type->tags ) ) {
-			$endpoint = add_query_arg( 'sha', $this->type->newest_tag, $endpoint );
+		if ( $this->type->primary_branch === $target && ! empty( $tags ) ) {
+			$endpoint = add_query_arg( 'sha', $newest_tag, $endpoint );
 		}
 
 		$download_link = $download_link_base . $endpoint;
