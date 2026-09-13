@@ -113,8 +113,8 @@ class GitLab_API extends API implements API_Interface {
 	 */
 	public function get_repo_meta() {
 		$id       = $this->get_gitlab_id();
-		$cache    = $this->get_repo_cache( $this->type->slug ?? false, false );
-		$response = isset( $cache['meta'] ) ? $cache['meta'] : false;
+		$cache    = $this->get_repo_cache( $this->type->slug ?? false, false, [ 'meta' ] ) ?: [];
+		$response = $cache['meta'] ?? false;
 
 		if ( ! $response ) {
 			self::$method = 'meta';
