@@ -2,14 +2,14 @@
 # This file is distributed under the MIT.
 msgid ""
 msgstr ""
-"Project-Id-Version: Git Updater - GitLab 2.9.0\n"
+"Project-Id-Version: Git Updater - GitLab 2.10.0\n"
 "Report-Msgid-Bugs-To: https://github.com/afragen/git-updater-gitlab/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-24T23:14:22+00:00\n"
+"POT-Creation-Date: 2026-11-20T21:02:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: git-updater-gitlab\n"
@@ -34,43 +34,49 @@ msgstr ""
 msgid "Andy Fragen"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:497
+#. translators: %s: hostname of the install source.
+#: src/Bootstrap.php:362
+#, php-format
+msgid "The install source %s is not an allowed host."
+msgstr ""
+
+#: src/GitLab/GitLab_API.php:604
 msgid "GitLab Token"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:506
+#: src/GitLab/GitLab_API.php:613
 msgid "GitLab Private Settings"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:541
+#: src/GitLab/GitLab_API.php:648
 msgid "GitLab OAuth"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:550
+#: src/GitLab/GitLab_API.php:657
 msgid "Remove Token"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:560
-#: src/GitLab/GitLab_API.php:621
+#: src/GitLab/GitLab_API.php:667
+#: src/GitLab/GitLab_API.php:728
 msgid "GitLab Access Token"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:591
+#: src/GitLab/GitLab_API.php:698
 msgid "GitLab"
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:600
+#: src/GitLab/GitLab_API.php:707
 msgid "Enter your repository specific GitLab Access Token."
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:607
+#: src/GitLab/GitLab_API.php:714
 msgid "Click the \"Connect GitLab\" button for an OAuth connection or enter your GitLab Access Token."
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:608
+#: src/GitLab/GitLab_API.php:715
 msgid "Access tokens are stored in this site's options table. Database backups contain them in cleartext — handle backup files accordingly."
 msgstr ""
 
-#: src/GitLab/GitLab_API.php:637
+#: src/GitLab/GitLab_API.php:744
 msgid "Enter GitLab Access Token for private GitLab repositories."
 msgstr ""
