@@ -174,26 +174,53 @@ class GitLab_API extends API implements API_Interface {
 		}
 
 		$exists = $this->release_asset_exists( $endpoint );
-		$table  = \Fragen\Git_Updater\DB\Repo_Cache_Table::instance();
-		$slug   = $this->type->slug;
 
 		if ( $exists ) {
 			$this->set_repo_cache( 'release_asset', $endpoint );
 			$this->set_repo_cache( 'release_asset_download', $endpoint );
-			$table->delete_entry( $slug, 'release_asset_redirect' );
+			$this->clear_release_asset_cache( [ 'release_asset_redirect' ] );
 			$this->release_asset_probe[ $endpoint ] = $endpoint;
 
 			return $endpoint;
 		}
 
 		// Drop a stale/dead cached URL so REST falls back to the archive link.
-		$cache = $this->get_repo_cache( $slug, false, [ 'release_asset', 'release_asset_download', 'release_asset_redirect' ] ) ?: [];
-		foreach ( array_keys( $cache ) as $key ) {
-			$table->delete_entry( $slug, $key );
-		}
+		$this->clear_release_asset_cache( [ 'release_asset', 'release_asset_download', 'release_asset_redirect' ] );
 		$this->release_asset_probe[ $endpoint ] = false;
 
 		return false;
+	}
+
+	/**
+	 * Clear cached release-asset columns for this repo.
+	 *
+	 * Git Updater develop ships the DB cache table (`Repo_Cache_Table`);
+	 * earlier versions (e.g. master) cache in site options and have no
+	 * table class, so fall back to writing empty values through the cache
+	 * API. Both paths normalize to an empty value, which REST treats as
+	 * "no release asset".
+	 *
+	 * @param string[] $columns Cache columns to clear.
+	 *
+	 * @return void
+	 */
+	private function clear_release_asset_cache( array $columns ) {
+		$slug = $this->type->slug;
+
+		if ( ! class_exists( '\Fragen\Git_Updater\DB\Repo_Cache_Table' ) ) {
+			foreach ( $columns as $column ) {
+				$this->set_repo_cache( $column, '' );
+			}
+
+			return;
+		}
+
+		$table = \Fragen\Git_Updater\DB\Repo_Cache_Table::instance();
+		$cache = $this->get_repo_cache( $slug, false, $columns ) ?: [];
+
+		foreach ( array_intersect( array_keys( (array) $cache ), $columns ) as $column ) {
+			$table->delete_entry( $slug, $column );
+		}
 	}
 
 	/**
