@@ -1,4 +1,6 @@
 [unreleased]
+
+#### 2.10.0 / 2026-11-20
 * promote the encoded GitLab project ID to a class property set in the constructor, replacing `get_gitlab_id()` and the per-method `$id` locals
 * fix release-asset downloads — verify the GitLab CI job artifact exists before using it as the download link and fall back to the repository archive when it is missing (e.g. expired artifacts); the expected 404 no longer populates the repo-wide `error_cache` or stores a non-URL object in `release_asset_download`, and stale `release_asset*` cache entries are cleared on failure
 * keep release-asset cleanup compatible with Git Updater versions that predate the DB cache table (e.g. 14.5.0 `master`) — clear the cached `release_asset*` values through the cache API when `Repo_Cache_Table` is unavailable
