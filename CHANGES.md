@@ -1,4 +1,7 @@
 [unreleased]
+* promote the encoded GitLab project ID to a class property set in the constructor, replacing `get_gitlab_id()` and the per-method `$id` locals
+* fix release-asset downloads — verify the GitLab CI job artifact exists before using it as the download link and fall back to the repository archive when it is missing (e.g. expired artifacts); the expected 404 no longer populates the repo-wide `error_cache` or stores a non-URL object in `release_asset_download`, and stale `release_asset*` cache entries are cleared on failure
+* tests: add release-asset fallback coverage for missing (404) and present (302) CI job artifacts
 * update `get_repo_assets()` path, thanks Miroslav and Taleb
 * read `tags` and `newest_tag` from the repo cache in `construct_download_link()` so non-fetch callers resolve the correct download endpoint even when the repo object has not been hydrated by a fetch (requires Git Updater 14.4+)
 * fix WPCS errors in the custom autoloader (missing @package tag, function docblock, short array syntax, array alignment, reserved $class param)
