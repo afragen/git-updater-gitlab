@@ -30,6 +30,20 @@ if ( ! defined( 'WPINC' ) ) {
  */
 class GitLab_API extends API implements API_Interface {
 	/**
+	 * GitLab project ID.
+	 *
+	 * @var string
+	 */
+	protected $id = '';
+
+	/**
+	 * Memoized release-asset probe results keyed by URL.
+	 *
+	 * @var array<string, string|false>
+	 */
+	private $release_asset_probe = [];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param null|stdClass $type plugin|theme.
@@ -37,6 +51,9 @@ class GitLab_API extends API implements API_Interface {
 	public function __construct( $type = null ) {
 		parent::__construct();
 		$this->type = $type;
+		$this->id   = null === $type
+			? ''
+			: rawurlencode( implode( '/', [ $type->owner ?? '', $type->slug ?? '' ] ) );
 		$this->set_default_credentials();
 		$this->settings_hook( $this );
 		$this->add_settings_subtab();
@@ -66,9 +83,7 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool
 	 */
 	public function get_remote_info( $file ) {
-		$id = $this->get_gitlab_id();
-
-		return $this->get_remote_api_info( 'gitlab', "/projects/{$id}/repository/files/{$file}" );
+		return $this->get_remote_api_info( 'gitlab', "/projects/{$this->id}/repository/files/{$file}" );
 	}
 
 	/**
@@ -77,9 +92,7 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool|null
 	 */
 	public function get_remote_tag() {
-		$id = $this->get_gitlab_id();
-
-		return $this->get_remote_api_tag( 'gitlab', "/projects/{$id}/repository/tags" );
+		return $this->get_remote_api_tag( 'gitlab', "/projects/{$this->id}/repository/tags" );
 	}
 
 	/**
@@ -90,9 +103,7 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool|null
 	 */
 	public function get_remote_changes( $changes ) {
-		$id = $this->get_gitlab_id();
-
-		return $this->get_remote_api_changes( 'gitlab', $changes, "/projects/{$id}/repository/files/:changelog" );
+		return $this->get_remote_api_changes( 'gitlab', $changes, "/projects/{$this->id}/repository/files/:changelog" );
 	}
 
 	/**
@@ -101,9 +112,7 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool|null
 	 */
 	public function get_remote_readme() {
-		$id = $this->get_gitlab_id();
-
-		return $this->get_remote_api_readme( 'gitlab', "/projects/{$id}/repository/files/:readme" );
+		return $this->get_remote_api_readme( 'gitlab', "/projects/{$this->id}/repository/files/:readme" );
 	}
 
 	/**
@@ -112,13 +121,12 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool
 	 */
 	public function get_repo_meta() {
-		$id       = $this->get_gitlab_id();
-		$cache    = $this->get_repo_cache( $this->type->slug ?? false, false );
-		$response = isset( $cache['meta'] ) ? $cache['meta'] : false;
+		$cache    = $this->get_repo_cache( $this->type->slug ?? false, false, [ 'meta' ] ) ?: [];
+		$response = $cache['meta'] ?? false;
 
 		if ( ! $response ) {
 			self::$method = 'meta';
-			$response     = $this->api( '/projects/' . $id );
+			$response     = $this->api( '/projects/' . $this->id );
 
 			if ( $response ) {
 				$response = $this->parse_meta_response( $response );
@@ -139,20 +147,105 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool|null
 	 */
 	public function get_remote_branches() {
-		$id = $this->get_gitlab_id();
-
-		return $this->get_remote_api_branches( 'gitlab', "/projects/{$id}/repository/branches" );
+		return $this->get_remote_api_branches( 'gitlab', "/projects/{$this->id}/repository/branches" );
 	}
 
 	/**
-	 * Get GitLab release asset download link.
+	 * Get GitLab CI job artifacts download link.
 	 *
-	 * @return string|bool
+	 * @param string|null $tag Tag/ref to check. Defaults to the newest tag.
+	 *
+	 * @return string|false Artifact URL when it exists, false otherwise.
 	 */
-	public function get_release_asset() {
-		$id = $this->get_gitlab_id();
+	public function get_release_asset( $tag = null ) {
+		$tag = $tag
+			?? $this->type->newest_tag
+			?? $this->get_newest_tag_from_cache( $this->type->slug ?? '' );
 
-		return $this->get_api_release_asset( 'gitlab', "/projects/{$id}/jobs/artifacts/{$this->type->newest_tag}/download" );
+		if ( empty( $this->type->ci_job ) ) {
+			return false;
+		}
+
+		$endpoint = $this->get_api_url( "/projects/{$this->id}/jobs/artifacts/{$tag}/download" );
+		$endpoint = add_query_arg( [ 'job' => $this->type->ci_job ], $endpoint );
+
+		if ( array_key_exists( $endpoint, $this->release_asset_probe ) ) {
+			return $this->release_asset_probe[ $endpoint ];
+		}
+
+		$exists = $this->release_asset_exists( $endpoint );
+
+		if ( $exists ) {
+			$this->set_repo_cache( 'release_asset', $endpoint );
+			$this->set_repo_cache( 'release_asset_download', $endpoint );
+			$this->clear_release_asset_cache( [ 'release_asset_redirect' ] );
+			$this->release_asset_probe[ $endpoint ] = $endpoint;
+
+			return $endpoint;
+		}
+
+		// Drop a stale/dead cached URL so REST falls back to the archive link.
+		$this->clear_release_asset_cache( [ 'release_asset', 'release_asset_download', 'release_asset_redirect' ] );
+		$this->release_asset_probe[ $endpoint ] = false;
+
+		return false;
+	}
+
+	/**
+	 * Clear cached release-asset columns for this repo.
+	 *
+	 * Git Updater develop ships the DB cache table (`Repo_Cache_Table`);
+	 * earlier versions (e.g. master) cache in site options and have no
+	 * table class, so fall back to writing empty values through the cache
+	 * API. Both paths normalize to an empty value, which REST treats as
+	 * "no release asset".
+	 *
+	 * @param string[] $columns Cache columns to clear.
+	 *
+	 * @return void
+	 */
+	private function clear_release_asset_cache( array $columns ) {
+		$slug = $this->type->slug;
+
+		if ( ! class_exists( '\Fragen\Git_Updater\DB\Repo_Cache_Table' ) ) {
+			foreach ( $columns as $column ) {
+				$this->set_repo_cache( $column, '' );
+			}
+
+			return;
+		}
+
+		$table = \Fragen\Git_Updater\DB\Repo_Cache_Table::instance();
+		$cache = $this->get_repo_cache( $slug, false, $columns ) ?: [];
+
+		foreach ( array_intersect( array_keys( (array) $cache ), $columns ) as $column ) {
+			$table->delete_entry( $slug, $column );
+		}
+	}
+
+	/**
+	 * Check whether a CI job artifact exists without downloading it.
+	 *
+	 * @param string $url Artifact download URL.
+	 *
+	 * @return bool
+	 */
+	private function release_asset_exists( string $url ): bool {
+		$args = array_merge(
+			$this->default_http_get_args,
+			$this->add_auth_header( [], $url ),
+			[
+				'redirection'         => 0,
+				'limit_response_size' => 1024,
+			]
+		);
+
+		$response = wp_remote_get( $url, $args );
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
+		return in_array( (int) wp_remote_retrieve_response_code( $response ), [ 200, 302, 303 ], true );
 	}
 
 	/**
@@ -161,9 +254,7 @@ class GitLab_API extends API implements API_Interface {
 	 * @return array
 	 */
 	public function get_release_assets() {
-		$id = $this->get_gitlab_id();
-
-		return $this->get_api_release_assets( 'gitlab', "/projects/{$id}/releases" );
+		return $this->get_api_release_assets( 'gitlab', "/projects/{$this->id}/releases" );
 	}
 
 	/**
@@ -172,9 +263,7 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool|null
 	 */
 	public function get_repo_assets() {
-		$id = $this->get_gitlab_id();
-
-		return $this->get_remote_api_assets( 'gitlab', "/projects/{$id}/repository/files/:path" );
+		return $this->get_remote_api_assets( 'gitlab', "/projects/{$this->id}/repository/tree/?path=:path" );
 	}
 
 	/**
@@ -183,9 +272,7 @@ class GitLab_API extends API implements API_Interface {
 	 * @return bool|null
 	 */
 	public function get_repo_contents() {
-		$id = $this->get_gitlab_id();
-
-		return $this->get_remote_api_contents( 'gitlab', "/projects/{$id}/repository/tree" );
+		return $this->get_remote_api_contents( 'gitlab', "/projects/{$this->id}/repository/tree" );
 	}
 	/**
 	 * Construct $this->type->download_link using GitLab API v4.
@@ -196,38 +283,48 @@ class GitLab_API extends API implements API_Interface {
 	 */
 	public function construct_download_link( $branch_switch = false ) {
 		self::$method       = 'download_link';
-		$download_link_base = $this->get_api_url( "/projects/{$this->get_gitlab_id()}/repository/archive.zip" );
+		$download_link_base = $this->get_api_url( "/projects/{$this->id}/repository/archive.zip" );
 		$download_link_base = remove_query_arg( 'private_token', $download_link_base );
 		$endpoint           = '';
-		$endpoint           = add_query_arg( 'sha', $this->type->branch, $endpoint );
 
-		// Release asset.
+		/*
+		 * Read tag data from the repo cache so non-fetch callers (rollback,
+		 * branch switch, REST update, branch listings) resolve the correct
+		 * endpoint even when $this->type has not been hydrated by a fetch.
+		 */
+		$cache      = $this->get_repo_cache( $this->type->slug, false, [ 'tags', 'newest_tag' ] ) ?: [];
+		$tags       = $this->type->tags ?? [];
+		$newest_tag = $this->type->newest_tag ?? '0.0.0';
+		if ( is_array( $cache['tags'] ?? null ) && ! empty( $cache['tags'] ) ) {
+			$tags = $cache['tags'];
+		}
+		if ( ! empty( $cache['newest_tag'] ) ) {
+			$newest_tag = (string) $cache['newest_tag'];
+		} elseif ( is_array( $cache['tags'] ?? null ) && ! empty( $cache['tags'] ) ) {
+			// Missing newest_tag entry: derive newest from the cached tag list
+			// (a flat list of names; sort_tags() semantics).
+			$sorted = $cache['tags'];
+			usort( $sorted, fn ( $a, $b ) => version_compare( trim( $b, 'v' ), trim( $a, 'v' ) ) );
+			$newest_tag = (string) reset( $sorted );
+		}
+
+		$target   = false !== $branch_switch ? $branch_switch : $this->type->branch;
+		$endpoint = add_query_arg( 'sha', $target, $endpoint );
+
+		$tag = $this->is_tag_target( (string) $target ) ? $target : $newest_tag;
+
+		// Release asset: use the CI job artifact only when it actually exists.
 		// GitLab will use the release asset URL for both updating and installing.
-		// A release asset redirect URL is not needed.
 		if ( $this->use_release_asset( $branch_switch ) ) {
-			$release_asset = $this->get_release_asset();
-			// $release_assets = $this->get_release_assets();
-
-			// For when a release asset is not a GitLab CI Job.
+			$release_asset = $this->get_release_asset( $tag );
 			if ( $release_asset ) {
 				return $release_asset;
 			}
-
-			$ci_job_endpoint = $this->get_api_url( "/projects/{$this->get_gitlab_id()}/jobs/artifacts/{$this->type->newest_tag}/download" );
-			$ci_job_endpoint = add_query_arg( [ 'job' => $this->type->ci_job ], $ci_job_endpoint );
-			$this->set_repo_cache( 'release_asset', $ci_job_endpoint );
-
-			return $ci_job_endpoint;
 		}
 
 		// If branch is primary branch (default) and tags are used, use newest tag.
-		if ( $this->type->primary_branch === $this->type->branch && ! empty( $this->type->tags ) ) {
-			$endpoint = add_query_arg( 'sha', $this->type->newest_tag, $endpoint );
-		}
-
-		// Create endpoint for branch switching.
-		if ( $branch_switch ) {
-			$endpoint = add_query_arg( 'sha', $branch_switch, $endpoint );
+		if ( $this->type->primary_branch === $target && ! empty( $tags ) ) {
+			$endpoint = add_query_arg( 'sha', $newest_tag, $endpoint );
 		}
 
 		$download_link = $download_link_base . $endpoint;
@@ -244,6 +341,17 @@ class GitLab_API extends API implements API_Interface {
 		 * @param string    $branch_switch Branch or tag for rollback or branch switching.
 		 */
 		return apply_filters( 'gu_post_construct_download_link', $download_link, $this->type, $branch_switch );
+	}
+
+	/**
+	 * Check whether a string target is a tag (not a branch).
+	 *
+	 * @param string $target Target branch or tag.
+	 *
+	 * @return bool
+	 */
+	private function is_tag_target( string $target ): bool {
+		return ! array_key_exists( $target, (array) ( $this->type->branches ?? [] ) );
 	}
 
 	/**
@@ -288,20 +396,6 @@ class GitLab_API extends API implements API_Interface {
 		}
 
 		return $endpoint;
-	}
-
-	/**
-	 * Get GitLab project ID.
-	 *
-	 * @see https://docs.gitlab.com/ee/api/README.html#namespaced-path-encoding
-	 *
-	 * @return string
-	 */
-	public function get_gitlab_id(): string {
-		$id = implode( '/', [ $this->type->owner, $this->type->slug ] );
-		$id = rawurlencode( $id );
-
-		return $id;
 	}
 
 	/**
@@ -395,6 +489,19 @@ class GitLab_API extends API implements API_Interface {
 		if ( $this->validate_response( $response ) ) {
 			return $response;
 		}
+
+		/*
+		 * Seed type->branches before the loop so construct_download_link()
+		 * classifies branches versus tags during the per-branch download link
+		 * resolution. populate_api_data() fills the repo object later; without
+		 * this, every branch target is treated as a tag and release-asset repos
+		 * re-resolve /releases for each branch.
+		 */
+		$this->type->branches = [];
+		foreach ( $response as $branch ) {
+			$this->type->branches[ $branch->name ] = [];
+		}
+
 		$branches = [];
 		foreach ( $response as $branch ) {
 			$branches[ $branch->name ]['download']         = $this->construct_download_link( $branch->name );
@@ -415,7 +522,7 @@ class GitLab_API extends API implements API_Interface {
 	 */
 	protected function parse_tags( $response, $repo_type ) {
 		$tags          = [];
-		$download_link = "/projects/{$this->get_gitlab_id()}/repository/archive.zip";
+		$download_link = "/projects/{$this->id}/repository/archive.zip";
 		$download_link = $this->get_api_url( $download_link );
 
 		foreach ( (array) $response as $tag ) {
@@ -660,8 +767,8 @@ class GitLab_API extends API implements API_Interface {
 			$gitlab_com = false;
 		}
 
-		$id                       = rawurlencode( $install['git_updater_repo'] );
-		$install['download_link'] = "{$base}/api/v4/projects/{$id}/repository/archive.zip";
+		$project_id               = rawurlencode( $install['git_updater_repo'] );
+		$install['download_link'] = "{$base}/api/v4/projects/{$project_id}/repository/archive.zip";
 		$install['download_link'] = add_query_arg( 'sha', $install['git_updater_branch'], $install['download_link'] );
 
 		/*

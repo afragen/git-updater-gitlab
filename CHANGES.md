@@ -1,5 +1,19 @@
 [unreleased]
 
+#### 2.10.0 / 2026-11-20
+* promote the encoded GitLab project ID to a class property set in the constructor, replacing `get_gitlab_id()` and the per-method `$id` locals
+* fix release-asset downloads — verify the GitLab CI job artifact exists before using it as the download link and fall back to the repository archive when it is missing (e.g. expired artifacts); the expected 404 no longer populates the repo-wide `error_cache` or stores a non-URL object in `release_asset_download`, and stale `release_asset*` cache entries are cleared on failure
+* keep release-asset cleanup compatible with Git Updater versions that predate the DB cache table (e.g. 14.5.0 `master`) — clear the cached `release_asset*` values through the cache API when `Repo_Cache_Table` is unavailable
+* tests: add release-asset fallback coverage for missing (404) and present (302) CI job artifacts
+* update `get_repo_assets()` path, thanks Miroslav and Taleb
+* read `tags` and `newest_tag` from the repo cache in `construct_download_link()` so non-fetch callers resolve the correct download endpoint even when the repo object has not been hydrated by a fetch (requires Git Updater 14.4+)
+* fix WPCS errors in the custom autoloader (missing @package tag, function docblock, short array syntax, array alignment, reserved $class param)
+* fix repeated release-asset API calls in a fetch cycle — `parse_branch_response()` now seeds `type->branches` before resolving per-branch download links so `use_release_asset()`/`is_tag_target()` classify branch targets (not tags) during the loop; without the seeding every branch of a release-asset repo was treated as a tag and each `construct_download_link()` re-fetched the release assets (requires Git Updater 14.4+)
+* security: contribute `gitlab.com`/`api.gitlab.com` and configured GitLab/self-hosted hosts through the new `gu_credential_hosts` filter so tokens are only sent to authorized hosts, and reject a `remote_install()` download link on an unauthorized host (requires Git Updater 14.4+)
+* tests: run the PHPUnit suite under wp-env-macos — add phpunit + yoast/phpunit-polyfills dev deps, a coverage config, a `.wp-env.json` (PHP 8.2), a test bootstrap that loads the mounted main Git Updater plugin, and `test`/`test-ms`/`test-coverage`/`wp-env-start`/`wp-env-stop` composer scripts
+* ci: pin Composer `config.platform.php` to 8.0 (matching git-updater and the plugin's `Requires PHP: 8.0` header) and regenerate `composer.lock`, so the test suite installs on the same PHP 8.0–8.5 matrix as git-updater; add the PHP 8.0 `--ignore-platform-reqs` CI exception
+
+
 #### 2.9.0 / 2026-07-24
 * add custom autoloader
 

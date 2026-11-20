@@ -11,6 +11,7 @@
 namespace Fragen\Git_Updater\GitLab;
 
 use Fragen\Git_Updater\API\GitLab_API;
+use WP_Error;
 use stdClass;
 
 /*
@@ -56,6 +57,7 @@ class Bootstrap {
 		add_filter( 'gu_git_servers', [ $this, 'set_git_servers' ], 10, 1 );
 		add_filter( 'gu_running_git_servers', [ $this, 'set_running_enterprise_servers' ], 10, 2 );
 		add_filter( 'gu_installed_apis', [ $this, 'set_installed_apis' ], 10, 1 );
+		add_filter( 'gu_credential_hosts', [ $this, 'set_credential_hosts' ], 10, 3 );
 		add_filter( 'gu_parse_release_asset', [ $this, 'parse_release_asset' ], 10, 4 );
 		add_filter( 'gu_install_remote_install', [ $this, 'set_remote_install_data' ], 10, 2 );
 		add_filter( 'gu_get_language_pack_json', [ $this, 'set_language_pack_json' ], 10, 4 );
@@ -286,6 +288,33 @@ class Bootstrap {
 	}
 
 	/**
+	 * Add hosts authorized to receive GitLab credentials.
+	 *
+	 * @param array<string, array<int, string>> $hosts          Provider => hostnames.
+	 * @param array<string, bool|string>        $installed_apis Active API add-ons.
+	 * @param array<string, stdClass>           $repos          Configured repositories.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public function set_credential_hosts( $hosts, $installed_apis, $repos ) {
+		$hosts['gitlab'] = array_merge( $hosts['gitlab'] ?? [], [ 'gitlab.com', 'api.gitlab.com' ] );
+
+		foreach ( $repos as $repo ) {
+			if ( ! isset( $repo->git ) || 'gitlab' !== $repo->git ) {
+				continue;
+			}
+			foreach ( [ $repo->enterprise ?? '', $repo->enterprise_api ?? '', $repo->base_uri ?? '' ] as $candidate ) {
+				$host = wp_parse_url( (string) $candidate, PHP_URL_HOST );
+				if ( ! empty( $host ) ) {
+					$hosts['gitlab'][] = (string) $host;
+				}
+			}
+		}
+
+		return $hosts;
+	}
+
+	/**
 	 * Parse API release asset.
 	 *
 	 * @param stdClass $response API response object.
@@ -323,6 +352,18 @@ class Bootstrap {
 	public function set_remote_install_data( $install, $headers ) {
 		if ( 'gitlab' === $install['git_updater_api'] ) {
 			$install = ( new GitLab_API() )->remote_install( $headers, $install );
+
+			$api = \Fragen\Singleton::get_instance( 'Fragen\Git_Updater\API\API', $this );
+			if ( ! $api->is_allowed_credential_host( (string) ( $install['download_link'] ?? '' ), 'gitlab' ) ) {
+				$install['error'] = new WP_Error(
+					'gu_install_host_not_allowed',
+					sprintf(
+						/* translators: %s: hostname of the install source. */
+						esc_html__( 'The install source %s is not an allowed host.', 'git-updater-gitlab' ),
+						(string) wp_parse_url( (string) ( $install['download_link'] ?? '' ), PHP_URL_HOST )
+					)
+				);
+			}
 		}
 
 		return $install;
